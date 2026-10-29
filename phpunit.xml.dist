@@ -1,0 +1,20 @@
+<phpunit
+	bootstrap="tests/phpunit/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<coverage processUncoveredFiles="false">
+		<include>
+			<directory suffix=".php">includes/</directory>
+			<file>smtp.php</file>
+		</include>
+	</coverage>
+	<testsuites>
+		<testsuite name="default">
+			<directory suffix="_Tests.php">./tests/phpunit/tests</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

@@ -54,6 +54,9 @@ class Plugin_Main {
 		$settings    = new Settings( $registry, $credentials );
 		$repository  = new Log_Repository();
 
+		$migration = new Migration( $credentials );
+		$migration->add_hooks();
+
 		$mailer = new Mailer( $settings, $registry );
 		$mailer->add_hooks();
 
@@ -90,6 +93,7 @@ class Plugin_Main {
 	 */
 	public static function activate() {
 		( new Log_Repository() )->maybe_upgrade();
+		( new Migration( new Credentials() ) )->maybe_migrate();
 
 		if ( ! wp_next_scheduled( self::PURGE_HOOK ) ) {
 			wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', self::PURGE_HOOK );

@@ -1,0 +1,46 @@
+name: PHP Linting
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/php-lint.yml'
+      - '**.php'
+      - 'phpcs.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
+  pull_request:
+    branches:
+      - main
+      - 'feature/**'
+    paths:
+      - '.github/workflows/php-lint.yml'
+      - '**.php'
+      - 'phpcs.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  phpcs:
+    name: PHP coding standards
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install PHP dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '--prefer-dist'
+
+      - name: Run PHPCS
+        run: composer lint

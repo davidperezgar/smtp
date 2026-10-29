@@ -125,7 +125,7 @@ class Test_Email {
 			5 * MINUTE_IN_SECONDS
 		);
 
-		wp_safe_redirect( admin_url( 'options-general.php?page=' . Admin_Page::PAGE_SLUG . '&tab=test' ) );
+		wp_safe_redirect( Admin_Page::get_url( 'test' ) );
 		exit;
 	}
 

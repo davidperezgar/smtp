@@ -12,7 +12,7 @@ use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Settings;
 
 /**
- * Registers and renders the Settings > SMTP screen.
+ * Registers and renders the Tools > SMTP screen.
  *
  * @since 0.1.0
  */
@@ -86,18 +86,32 @@ class Admin_Page {
 	}
 
 	/**
-	 * Adds the Settings > SMTP menu item.
+	 * Adds the Tools > SMTP menu item.
 	 *
 	 * @since 0.1.0
 	 */
 	public function add_menu() {
-		add_options_page(
+		add_management_page(
 			__( 'SMTP', 'smtp' ),
 			__( 'SMTP', 'smtp' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( $this, 'render_page' )
 		);
+	}
+
+	/**
+	 * Returns the URL of the screen.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param string $tab Optional tab slug.
+	 * @return string Admin URL.
+	 */
+	public static function get_url( string $tab = '' ): string {
+		$url = admin_url( 'tools.php?page=' . self::PAGE_SLUG );
+
+		return '' === $tab ? $url : add_query_arg( 'tab', $tab, $url );
 	}
 
 	/**
@@ -109,9 +123,7 @@ class Admin_Page {
 	 * @return string[] Plugin action links.
 	 */
 	public function add_action_link( $links ) {
-		$url = admin_url( 'options-general.php?page=' . self::PAGE_SLUG );
-
-		array_unshift( $links, '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Settings', 'smtp' ) . '</a>' );
+		array_unshift( $links, '<a href="' . esc_url( self::get_url() ) . '">' . esc_html__( 'Settings', 'smtp' ) . '</a>' );
 
 		return $links;
 	}
@@ -188,7 +200,7 @@ class Admin_Page {
 			<nav class="nav-tab-wrapper">
 				<?php foreach ( $tabs as $slug => $label ) : ?>
 					<a
-						href="<?php echo esc_url( add_query_arg( 'tab', $slug, admin_url( 'options-general.php?page=' . self::PAGE_SLUG ) ) ); ?>"
+						href="<?php echo esc_url( self::get_url( $slug ) ); ?>"
 						class="nav-tab<?php echo $slug === $current ? ' nav-tab-active' : ''; ?>"
 					>
 						<?php echo esc_html( $label ); ?>

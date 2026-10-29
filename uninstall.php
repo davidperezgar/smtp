@@ -15,6 +15,11 @@ delete_option( 'smtp_settings' );
 delete_option( 'smtp_credentials' );
 delete_option( 'smtp_db_version' );
 
+// Data of the legacy plugin that this one replaces, and the import bookkeeping.
+delete_option( 'smtp_options' );
+delete_option( 'smtp_legacy_migrated' );
+delete_option( 'smtp_migration_notice' );
+
 wp_clear_scheduled_hook( 'smtp_purge_logs' );
 
 // The table name is built from the trusted `$wpdb->prefix` only.

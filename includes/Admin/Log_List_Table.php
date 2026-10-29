@@ -77,13 +77,7 @@ class Log_List_Table extends \WP_List_Table {
 	 */
 	protected function get_views() {
 		$current = $this->get_current_status();
-		$base    = add_query_arg(
-			array(
-				'page' => Admin_Page::PAGE_SLUG,
-				'tab'  => 'log',
-			),
-			admin_url( 'options-general.php' )
-		);
+		$base    = Admin_Page::get_url( 'log' );
 
 		$statuses = array(
 			''       => __( 'All', 'smtp' ),
