@@ -1,0 +1,1 @@
+# SMTP WordPress Plugin (Community)
