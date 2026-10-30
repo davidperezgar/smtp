@@ -84,7 +84,25 @@ class Test_Email {
 			wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'smtp' ), '', array( 'response' => 403 ) );
 		}
 
-		$user  = wp_get_current_user();
+		$user = wp_get_current_user();
+
+		// The nonce was verified above. An empty field falls back to the email of the current user.
+		// The address is validated as typed: sanitize_email() would turn a list of addresses into a different, valid one.
+		$requested = isset( $_POST['to'] ) ? sanitize_text_field( wp_unslash( $_POST['to'] ) ) : '';
+		$to        = '' === $requested ? $user->user_email : $requested;
+
+		if ( ! is_email( $to ) ) {
+			$this->finish(
+				$user->ID,
+				array(
+					'success' => false,
+					'to'      => $requested,
+					'error'   => __( 'Please enter a valid email address.', 'smtp' ),
+					'debug'   => '',
+				)
+			);
+		}
+
 		$debug = array();
 		$error = '';
 
@@ -105,7 +123,7 @@ class Test_Email {
 		add_action( 'wp_mail_failed', $capture_error );
 
 		$sent = wp_mail(
-			$user->user_email,
+			$to,
 			/* translators: %s: site name */
 			sprintf( __( 'SMTP test email from %s', 'smtp' ), wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ),
 			__( 'This is a test email sent by the SMTP plugin. If you are reading it, your settings work.', 'smtp' )
@@ -114,16 +132,27 @@ class Test_Email {
 		remove_action( 'phpmailer_init', $capture_debug, PHP_INT_MAX );
 		remove_action( 'wp_mail_failed', $capture_error );
 
-		set_transient(
-			self::ACTION . '_' . $user->ID,
+		$this->finish(
+			$user->ID,
 			array(
 				'success' => $sent,
-				'to'      => $user->user_email,
+				'to'      => $to,
 				'error'   => $error,
 				'debug'   => $this->redact( implode( "\n", $debug ) ),
-			),
-			5 * MINUTE_IN_SECONDS
+			)
 		);
+	}
+
+	/**
+	 * Stores the result for the Test tab and redirects to it.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param int   $user_id User ID.
+	 * @param array $result  Result with `success`, `to`, `error` and `debug`.
+	 */
+	private function finish( int $user_id, array $result ) {
+		set_transient( self::ACTION . '_' . $user_id, $result, 5 * MINUTE_IN_SECONDS );
 
 		wp_safe_redirect( Admin_Page::get_url( 'test' ) );
 		exit;

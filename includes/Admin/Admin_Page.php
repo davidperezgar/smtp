@@ -435,23 +435,26 @@ class Admin_Page {
 			<?php
 		}
 		?>
-		<p>
-			<?php
-			echo esc_html(
-				sprintf(
-					/* translators: %s: email address */
-					__( 'Send a test email to %s.', 'smtp' ),
-					$user->user_email
-				)
-			);
-			?>
-		</p>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="<?php echo esc_attr( Test_Email::ACTION ); ?>" />
-			<?php
-			wp_nonce_field( Test_Email::ACTION );
-			submit_button( __( 'Send test email', 'smtp' ), 'secondary' );
-			?>
+			<?php wp_nonce_field( Test_Email::ACTION ); ?>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="smtp-test-to"><?php esc_html_e( 'Send to', 'smtp' ); ?></label></th>
+					<td>
+						<input
+							type="email"
+							class="regular-text"
+							id="smtp-test-to"
+							name="to"
+							value="<?php echo esc_attr( $result ? $result['to'] : $user->user_email ); ?>"
+							required
+						/>
+						<p class="description"><?php esc_html_e( 'The address that will receive the test email.', 'smtp' ); ?></p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button( __( 'Send test email', 'smtp' ), 'secondary' ); ?>
 		</form>
 		<?php
 	}

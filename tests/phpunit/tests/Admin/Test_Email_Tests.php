@@ -26,6 +26,7 @@ class Test_Email_Tests extends WP_UnitTestCase {
 		add_filter( 'wp_mail_from', array( $this, 'get_valid_from_email' ) );
 
 		$this->create_log_table();
+		reset_phpmailer_instance();
 
 		$this->test_email = new Test_Email( new Settings( new Provider_Registry(), new Credentials() ) );
 	}
@@ -35,7 +36,7 @@ class Test_Email_Tests extends WP_UnitTestCase {
 	}
 
 	public function tear_down() {
-		unset( $_REQUEST['_wpnonce'] );
+		unset( $_REQUEST['_wpnonce'], $_POST['to'] );
 
 		parent::tear_down();
 	}
@@ -118,6 +119,83 @@ class Test_Email_Tests extends WP_UnitTestCase {
 		$this->assertTrue( $result['success'] );
 		$this->assertSame( 'tester@example.org', $result['to'] );
 		$this->assertSame( '', $result['error'] );
+	}
+
+	public function test_handle_sends_the_email_to_the_requested_address() {
+		$user_id     = $this->request_as( 'administrator' );
+		$_POST['to'] = 'someone.else@example.com';
+
+		$this->run_handler();
+
+		$mailer = tests_retrieve_phpmailer_instance();
+		$this->assertSame( 'someone.else@example.com', $mailer->get_recipient( 'to' )->address );
+
+		$result = Test_Email::pull_result( $user_id );
+		$this->assertTrue( $result['success'] );
+		$this->assertSame( 'someone.else@example.com', $result['to'] );
+	}
+
+	public function test_handle_sends_to_the_current_user_when_the_address_is_empty() {
+		$user_id     = $this->request_as( 'administrator' );
+		$_POST['to'] = '   ';
+
+		$this->run_handler();
+
+		$this->assertSame( 'tester@example.org', tests_retrieve_phpmailer_instance()->get_recipient( 'to' )->address );
+		$this->assertSame( 'tester@example.org', Test_Email::pull_result( $user_id )['to'] );
+	}
+
+	public function test_handle_trims_the_requested_address() {
+		$user_id     = $this->request_as( 'administrator' );
+		$_POST['to'] = '  spaced@example.com ';
+
+		$this->run_handler();
+
+		$this->assertSame( 'spaced@example.com', Test_Email::pull_result( $user_id )['to'] );
+	}
+
+	public function test_handle_rejects_an_invalid_address_without_sending() {
+		$user_id     = $this->request_as( 'administrator' );
+		$_POST['to'] = 'not-an-email';
+
+		reset_phpmailer_instance();
+		$location = $this->run_handler();
+
+		$this->assertStringContainsString( 'tab=test', $location );
+		$this->assertFalse( tests_retrieve_phpmailer_instance()->get_recipient( 'to' ) );
+
+		$result = Test_Email::pull_result( $user_id );
+		$this->assertFalse( $result['success'] );
+		$this->assertSame( 'not-an-email', $result['to'] );
+		$this->assertSame( 'Please enter a valid email address.', $result['error'] );
+		$this->assertSame( '', $result['debug'] );
+	}
+
+	public function test_handle_does_not_send_to_several_addresses_at_once() {
+		$user_id     = $this->request_as( 'administrator' );
+		$_POST['to'] = 'one@example.com, two@example.com';
+
+		reset_phpmailer_instance();
+		$this->run_handler();
+
+		$this->assertFalse( Test_Email::pull_result( $user_id )['success'] );
+		$this->assertFalse( tests_retrieve_phpmailer_instance()->get_recipient( 'to' ) );
+	}
+
+	public function test_handle_does_not_send_mail_to_a_user_without_the_capability() {
+		$this->request_as( 'subscriber' );
+		$_POST['to'] = 'victim@example.com';
+
+		reset_phpmailer_instance();
+
+		try {
+			$this->test_email->handle();
+		} catch ( WPDieException $e ) {
+			$this->assertFalse( tests_retrieve_phpmailer_instance()->get_recipient( 'to' ) );
+			return;
+		}
+
+		$this->fail( 'The request should have been rejected.' );
 	}
 
 	public function test_handle_reports_a_failure() {

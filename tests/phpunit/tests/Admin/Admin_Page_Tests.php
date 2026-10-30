@@ -240,6 +240,52 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'is not configured yet', $html );
 	}
 
+	public function test_the_test_tab_asks_for_the_recipient_with_the_current_user_as_default() {
+		$user = wp_get_current_user();
+
+		$html = $this->render( 'test' );
+
+		$this->assertMatchesRegularExpression( '/<input[^>]*type="email"[^>]*name="to"/s', $html );
+		$this->assertStringContainsString( 'value="' . $user->user_email . '"', $html );
+		$this->assertStringContainsString( 'for="smtp-test-to"', $html );
+	}
+
+	public function test_the_test_tab_remembers_the_last_recipient() {
+		set_transient(
+			'smtp_send_test_' . get_current_user_id(),
+			array(
+				'success' => true,
+				'to'      => 'last.used@example.com',
+				'error'   => '',
+				'debug'   => '',
+			),
+			60
+		);
+
+		$html = $this->render( 'test' );
+
+		$this->assertStringContainsString( 'value="last.used@example.com"', $html );
+		$this->assertStringContainsString( 'Test email sent to last.used@example.com.', $html );
+	}
+
+	public function test_the_test_tab_shows_the_error_of_an_invalid_address_and_escapes_it() {
+		set_transient(
+			'smtp_send_test_' . get_current_user_id(),
+			array(
+				'success' => false,
+				'to'      => '"><script>alert(1)</script>',
+				'error'   => 'Please enter a valid email address.',
+				'debug'   => '',
+			),
+			60
+		);
+
+		$html = $this->render( 'test' );
+
+		$this->assertStringContainsString( 'Please enter a valid email address.', $html );
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $html );
+	}
+
 	public function test_the_test_tab_hides_the_unconfigured_warning_once_configured() {
 		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
 
