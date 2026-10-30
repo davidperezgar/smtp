@@ -14,28 +14,28 @@ namespace WordPress\SMTP;
 /**
  * Stores and queries the email log.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Log_Repository {
 
 	/**
 	 * Current version of the log table schema.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const DB_VERSION = '1';
 
 	/**
 	 * Name of the option that stores the installed schema version.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const DB_VERSION_OPTION = 'smtp_db_version';
 
 	/**
 	 * Returns the full table name.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string Table name.
 	 */
@@ -48,7 +48,7 @@ class Log_Repository {
 	/**
 	 * Creates or updates the table when the stored schema version is outdated.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function maybe_upgrade() {
 		if ( get_option( self::DB_VERSION_OPTION ) === self::DB_VERSION ) {
@@ -83,7 +83,7 @@ class Log_Repository {
 	/**
 	 * Inserts a log entry.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array $entry Entry with `recipient`, `subject`, `status`, `error` and `provider`.
 	 */
@@ -107,7 +107,7 @@ class Log_Repository {
 	/**
 	 * Returns a page of log entries, newest first.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $status   Status to filter by, or an empty string for all.
 	 * @param int    $per_page Entries per page.
@@ -142,7 +142,7 @@ class Log_Repository {
 	/**
 	 * Counts log entries.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $status Status to filter by, or an empty string for all.
 	 * @return int Number of entries.
@@ -164,7 +164,7 @@ class Log_Repository {
 	/**
 	 * Deletes entries older than the given number of days.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param int $days Number of days to keep.
 	 */

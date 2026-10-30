@@ -19,14 +19,14 @@ namespace WordPress\SMTP;
  * - `required` (string[]): Field keys that must have a value for the provider to be usable.
  * - `configure` (callable): Receives the `PHPMailer` instance and the resolved field values.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Provider_Registry {
 
 	/**
 	 * Returns all valid providers.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return array[] Providers keyed by slug.
 	 */
@@ -34,7 +34,7 @@ class Provider_Registry {
 		/**
 		 * Filters the available mail providers.
 		 *
-		 * @since 0.1.0
+		 * @since 1.2.0
 		 *
 		 * @param array[] $providers Providers keyed by slug.
 		 */
@@ -68,7 +68,7 @@ class Provider_Registry {
 	/**
 	 * Returns a single provider.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $slug Provider slug.
 	 * @return array|null Provider definition, or null when unknown.
@@ -82,7 +82,7 @@ class Provider_Registry {
 	/**
 	 * Returns the slug of the provider used when none is saved.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string Provider slug, or an empty string when there are no providers.
 	 */
@@ -101,7 +101,7 @@ class Provider_Registry {
 	/**
 	 * Returns the built-in Generic SMTP provider.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return array Provider definition.
 	 */
@@ -156,7 +156,7 @@ class Provider_Registry {
 	/**
 	 * Configures PHPMailer for the Generic SMTP provider.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param \PHPMailer\PHPMailer\PHPMailer $phpmailer PHPMailer instance.
 	 * @param array                          $values    Resolved field values.

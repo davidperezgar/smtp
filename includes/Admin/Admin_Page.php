@@ -14,21 +14,21 @@ use WordPress\SMTP\Settings;
 /**
  * Registers and renders the Tools > SMTP screen.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Admin_Page {
 
 	/**
 	 * Menu and settings page slug.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const PAGE_SLUG = 'smtp';
 
 	/**
 	 * Settings.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Settings
 	 */
 	private $settings;
@@ -36,7 +36,7 @@ class Admin_Page {
 	/**
 	 * Provider registry.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Provider_Registry
 	 */
 	private $registry;
@@ -44,7 +44,7 @@ class Admin_Page {
 	/**
 	 * Log repository.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Log_Repository
 	 */
 	private $repository;
@@ -52,7 +52,7 @@ class Admin_Page {
 	/**
 	 * Path to the main plugin file.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var string
 	 */
 	private $main_file;
@@ -60,7 +60,7 @@ class Admin_Page {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Settings          $settings   Settings.
 	 * @param Provider_Registry $registry   Provider registry.
@@ -77,7 +77,7 @@ class Admin_Page {
 	/**
 	 * Registers the hooks.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
@@ -88,7 +88,7 @@ class Admin_Page {
 	/**
 	 * Adds the Tools > SMTP menu item.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_menu() {
 		add_management_page(
@@ -103,7 +103,7 @@ class Admin_Page {
 	/**
 	 * Returns the URL of the screen.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $tab Optional tab slug.
 	 * @return string Admin URL.
@@ -117,7 +117,7 @@ class Admin_Page {
 	/**
 	 * Adds a Settings link to the plugin row.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string[] $links Plugin action links.
 	 * @return string[] Plugin action links.
@@ -131,7 +131,7 @@ class Admin_Page {
 	/**
 	 * Registers the setting and its fields.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function register_settings() {
 		register_setting(
@@ -174,7 +174,7 @@ class Admin_Page {
 	/**
 	 * Renders the screen.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function render_page() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -226,7 +226,7 @@ class Admin_Page {
 	/**
 	 * Renders the provider select.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function render_provider_field() {
 		$current = $this->settings->get_provider_slug();
@@ -247,7 +247,7 @@ class Admin_Page {
 	/**
 	 * Renders a settings field.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array $args Field arguments: `key` and `field`.
 	 */
@@ -340,7 +340,7 @@ class Admin_Page {
 	/**
 	 * Renders the Settings tab.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	private function render_settings_tab() {
 		?>
@@ -357,7 +357,7 @@ class Admin_Page {
 	/**
 	 * Renders the Email log tab.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	private function render_log_tab() {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
@@ -376,7 +376,7 @@ class Admin_Page {
 	/**
 	 * Renders the Test tab.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	private function render_test_tab() {
 		$user   = wp_get_current_user();

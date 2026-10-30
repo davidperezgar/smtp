@@ -2,7 +2,7 @@
 
 Contributors:      wordpressdotorg
 Tested up to:      6.9
-Stable tag:        0.1.0
+Stable tag:        1.2.0
 Requires at least: 6.3
 Requires PHP:      7.4
 License:           GPLv2 or later
@@ -50,7 +50,7 @@ SMTP is developed in the open. Bug reports, ideas and pull requests are welcome 
 
 == Changelog ==
 
-= 0.1.0 =
+= 1.2.0 =
 
 * Initial release, maintained by the WordPress Plugins Team and the community.
 * Settings of the previous SMTP plugin are imported automatically.

@@ -13,21 +13,21 @@ namespace WordPress\SMTP;
  * All access to secrets goes through this class so the storage can be replaced
  * (for example by the core credentials API) without touching the rest of the plugin.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Credentials {
 
 	/**
 	 * Name of the option that stores the secrets.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const OPTION = 'smtp_credentials';
 
 	/**
 	 * Returns a stored secret.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $key Secret key.
 	 * @return string Secret value, or an empty string when not set.
@@ -45,7 +45,7 @@ class Credentials {
 	/**
 	 * Stores a secret.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $key   Secret key.
 	 * @param string $value Secret value.

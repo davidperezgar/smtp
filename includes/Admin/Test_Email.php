@@ -12,21 +12,21 @@ use WordPress\SMTP\Settings;
 /**
  * Sends a test email to the current user and reports the outcome.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Test_Email {
 
 	/**
 	 * Action and nonce name.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const ACTION = 'smtp_send_test';
 
 	/**
 	 * Settings.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Settings
 	 */
 	private $settings;
@@ -34,7 +34,7 @@ class Test_Email {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Settings $settings Settings.
 	 */
@@ -45,7 +45,7 @@ class Test_Email {
 	/**
 	 * Registers the hooks.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_hooks() {
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle' ) );
@@ -54,7 +54,7 @@ class Test_Email {
 	/**
 	 * Returns the last test result of a user and forgets it.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param int $user_id User ID.
 	 * @return array|null Result with `success`, `to`, `error` and `debug`, or null when there is none.
@@ -75,7 +75,7 @@ class Test_Email {
 	/**
 	 * Handles the test email request.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function handle() {
 		check_admin_referer( self::ACTION );
@@ -132,7 +132,7 @@ class Test_Email {
 	/**
 	 * Removes the credentials from the connection log, in plain text and base64.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $text Connection log.
 	 * @return string Connection log without credentials.

@@ -16,56 +16,56 @@ use WordPress\SMTP\Admin\Admin_Page;
  * the activation hook never runs again. The import therefore runs on `init`, once, and keeps the
  * legacy option untouched until the plugin is uninstalled.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Migration {
 
 	/**
 	 * Name of the option where the legacy plugin stored its settings.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const LEGACY_OPTION = 'smtp_options';
 
 	/**
 	 * Name of the option that records that the import was already attempted.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const DONE_OPTION = 'smtp_legacy_migrated';
 
 	/**
 	 * Name of the option that holds the pending admin notice.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const NOTICE_OPTION = 'smtp_migration_notice';
 
 	/**
 	 * Notice shown after the settings were imported.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const NOTICE_MIGRATED = 'migrated';
 
 	/**
 	 * Notice shown when the settings were imported but the password could not be.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const NOTICE_PASSWORD_MISSING = 'password_missing';
 
 	/**
 	 * Key the legacy plugin used to encrypt the password. It was hardcoded in its public source code.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const LEGACY_CRYPT_KEY = '-J5:2Yqd?Ri9wLjN';
 
 	/**
 	 * Credentials storage.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Credentials
 	 */
 	private $credentials;
@@ -73,7 +73,7 @@ class Migration {
 	/**
 	 * Callable that decrypts a legacy password, or null to use mcrypt when available.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var callable|null
 	 */
 	private $decrypter;
@@ -81,7 +81,7 @@ class Migration {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Credentials   $credentials Credentials storage.
 	 * @param callable|null $decrypter   Optional callable that receives the stored legacy password and
@@ -95,7 +95,7 @@ class Migration {
 	/**
 	 * Registers the hooks.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_hooks() {
 		// Priority 0: users are available, and it runs before most mail is sent.
@@ -112,7 +112,7 @@ class Migration {
 	 * Nothing is imported when the new settings already exist, or when the legacy plugin was never
 	 * configured. The legacy option is never modified.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return bool True when settings were imported.
 	 */
@@ -152,7 +152,7 @@ class Migration {
 	/**
 	 * Shows the pending notice, if any.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function render_notice() {
 		$notice = get_option( self::NOTICE_OPTION );
@@ -217,7 +217,7 @@ class Migration {
 	/**
 	 * Maps the legacy options to the settings of this plugin.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array $legacy Legacy options.
 	 * @return array|null Settings, or null when the legacy plugin was never configured.
@@ -268,7 +268,7 @@ class Migration {
 	/**
 	 * Returns the decrypted legacy password.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array $legacy Legacy options.
 	 * @return string Password, or an empty string when there is none or it can not be decrypted.
@@ -292,7 +292,7 @@ class Migration {
 	 * The mcrypt extension was removed in PHP 7.2 and no other extension supports Rijndael-256, so
 	 * this only works on servers that still provide it.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $encrypted Encrypted password, as stored by the legacy plugin.
 	 * @return string Password, or an empty string when mcrypt is not available.

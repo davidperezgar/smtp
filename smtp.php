@@ -5,7 +5,7 @@
  * Description: Send WordPress emails through an SMTP server, with an extensible provider API and a simple email log.
  * Requires at least: 6.3
  * Requires PHP: 7.4
- * Version: 0.1.0
+ * Version: 1.2.0
  * Author: WordPress Plugins Team
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -16,14 +16,14 @@
 
 use WordPress\SMTP\Plugin_Main;
 
-define( 'WP_SMTP_VERSION', '0.1.0' );
+define( 'WP_SMTP_VERSION', '1.2.0' );
 define( 'WP_SMTP_MINIMUM_PHP', '7.4' );
 define( 'WP_SMTP_MAIN_FILE', __FILE__ );
 
 /**
  * Checks basic requirements and loads the plugin.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 function wp_smtp_load() {
 	if ( version_compare( phpversion(), WP_SMTP_MINIMUM_PHP, '<' ) ) {
@@ -49,7 +49,7 @@ function wp_smtp_load() {
 /**
  * Displays an admin notice when the PHP version is not supported.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 function wp_smtp_display_php_version_notice() {
 	?>
@@ -71,7 +71,7 @@ function wp_smtp_display_php_version_notice() {
 /**
  * Displays an admin notice when the Composer autoloader is missing.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 function wp_smtp_display_autoload_notice() {
 	?>

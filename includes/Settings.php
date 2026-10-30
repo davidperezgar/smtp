@@ -12,21 +12,21 @@ namespace WordPress\SMTP;
  *
  * Values defined through constants always win over saved values.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Settings {
 
 	/**
 	 * Name of the option that stores the settings.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const OPTION = 'smtp_settings';
 
 	/**
 	 * Provider registry.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Provider_Registry
 	 */
 	private $registry;
@@ -34,7 +34,7 @@ class Settings {
 	/**
 	 * Credentials storage.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Credentials
 	 */
 	private $credentials;
@@ -42,7 +42,7 @@ class Settings {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Provider_Registry $registry    Provider registry.
 	 * @param Credentials       $credentials Credentials storage.
@@ -55,7 +55,7 @@ class Settings {
 	/**
 	 * Returns the slug of the active provider.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string Provider slug.
 	 */
@@ -73,7 +73,7 @@ class Settings {
 	/**
 	 * Returns the normalized fields of a provider plus the general fields.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $slug Provider slug. Defaults to the active provider.
 	 * @return array[] Fields keyed by field key.
@@ -108,7 +108,7 @@ class Settings {
 	/**
 	 * Returns the resolved value of a field.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $key Field key.
 	 * @return string|int|bool Field value, or an empty string for unknown fields.
@@ -126,7 +126,7 @@ class Settings {
 	/**
 	 * Returns the resolved values of the active provider fields.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return array Values keyed by field key.
 	 */
@@ -149,7 +149,7 @@ class Settings {
 	/**
 	 * Whether the active provider has everything it needs to send mail.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return bool True when mail should be sent through the provider.
 	 */
@@ -173,7 +173,7 @@ class Settings {
 	/**
 	 * Whether the value of a field is defined by a constant.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array $field Normalized field.
 	 * @return bool True when locked by a constant.
@@ -187,7 +187,7 @@ class Settings {
 	 *
 	 * Secrets are never written to the settings option, they go to the credentials storage.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param mixed $input Submitted settings.
 	 * @return array Sanitized settings.
@@ -246,7 +246,7 @@ class Settings {
 	/**
 	 * Returns the fields shared by every provider.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return array[] Fields keyed by field key.
 	 */
@@ -274,7 +274,7 @@ class Settings {
 	/**
 	 * Resolves the value of a field: constant, then secret or saved option, then default.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $key   Field key.
 	 * @param array  $field Normalized field.
@@ -300,7 +300,7 @@ class Settings {
 	/**
 	 * Casts a value to the type of its field.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param mixed $value Raw value.
 	 * @param array $field Normalized field.
@@ -320,7 +320,7 @@ class Settings {
 	/**
 	 * Returns the saved settings option.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return array Saved settings.
 	 */

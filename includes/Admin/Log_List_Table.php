@@ -12,21 +12,21 @@ use WordPress\SMTP\Log_Repository;
 /**
  * Lists the email log.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Log_List_Table extends \WP_List_Table {
 
 	/**
 	 * Entries shown per page.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const PER_PAGE = 20;
 
 	/**
 	 * Log repository.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Log_Repository
 	 */
 	private $repository;
@@ -34,7 +34,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Log_Repository $repository Log repository.
 	 */
@@ -53,7 +53,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Returns the table columns.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string[] Column labels keyed by column slug.
 	 */
@@ -71,7 +71,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Returns the status filter links.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string[] Links keyed by status.
 	 */
@@ -102,7 +102,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Loads the entries for the current page.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function prepare_items() {
 		$status = $this->get_current_status();
@@ -123,7 +123,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Renders a column.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array  $item        Log entry.
 	 * @param string $column_name Column slug.
@@ -151,7 +151,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Message shown when there are no entries.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function no_items() {
 		esc_html_e( 'No emails logged yet.', 'smtp' );
@@ -160,7 +160,7 @@ class Log_List_Table extends \WP_List_Table {
 	/**
 	 * Returns the status filter from the request.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string `sent`, `failed` or an empty string.
 	 */

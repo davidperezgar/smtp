@@ -12,14 +12,14 @@ namespace WordPress\SMTP;
  *
  * Nothing is changed until the active provider is fully configured.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Mailer {
 
 	/**
 	 * Settings.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Settings
 	 */
 	private $settings;
@@ -27,7 +27,7 @@ class Mailer {
 	/**
 	 * Provider registry.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Provider_Registry
 	 */
 	private $registry;
@@ -35,7 +35,7 @@ class Mailer {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Settings          $settings Settings.
 	 * @param Provider_Registry $registry Provider registry.
@@ -48,7 +48,7 @@ class Mailer {
 	/**
 	 * Registers the hooks.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_hooks() {
 		add_action( 'phpmailer_init', array( $this, 'configure' ) );
@@ -59,7 +59,7 @@ class Mailer {
 	/**
 	 * Lets the active provider configure PHPMailer.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param \PHPMailer\PHPMailer\PHPMailer $phpmailer PHPMailer instance.
 	 */
@@ -79,7 +79,7 @@ class Mailer {
 	/**
 	 * Filters the From email address.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $email From email address.
 	 * @return string From email address.
@@ -104,7 +104,7 @@ class Mailer {
 	/**
 	 * Filters the From name.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $name From name.
 	 * @return string From name.
@@ -129,7 +129,7 @@ class Mailer {
 	/**
 	 * Returns the From email address WordPress uses when none is set.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @return string Default From email address.
 	 */

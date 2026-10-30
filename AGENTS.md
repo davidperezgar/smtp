@@ -14,7 +14,7 @@ This file provides context for AI coding agents (Claude Code, OpenAI Codex, Gemi
 
 Existing users of the legacy SMTP plugin keep their settings through an automatic import (see "Legacy plugin migration").
 
-Out of scope for v0.1: HTTP-API providers (tracked in [#1](https://github.com/davidperezgar/smtp/issues/1)), multisite network settings, encryption of stored credentials.
+Out of scope for the first release: HTTP-API providers (tracked in [#1](https://github.com/davidperezgar/smtp/issues/1)), multisite network settings, encryption of stored credentials.
 
 ## Repository Structure
 
@@ -158,7 +158,7 @@ npm run test-php -- --filter Settings_Tests::test_sanitize_is_idempotent
 
 ## Release Process
 
-Current version: `0.1.0` (declared in the `smtp.php` header and the `WP_SMTP_VERSION` constant).
+Current version: `1.2.0` (declared in the `smtp.php` header and the `WP_SMTP_VERSION` constant).
 
 1. Bump the version in the `smtp.php` header (`Version:`), and the `WP_SMTP_VERSION` constant in `smtp.php`. Keep both locations in sync.
 2. Update the `readme.txt` **Changelog** section with a summary of notable changes.

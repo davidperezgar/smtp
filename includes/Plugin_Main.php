@@ -13,21 +13,21 @@ use WordPress\SMTP\Admin\Test_Email;
 /**
  * Main class for the plugin.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Plugin_Main {
 
 	/**
 	 * Name of the cron event that purges old log entries.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const PURGE_HOOK = 'smtp_purge_logs';
 
 	/**
 	 * Path to the main plugin file.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var string
 	 */
 	private $main_file;
@@ -35,7 +35,7 @@ class Plugin_Main {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $main_file Absolute path to the main plugin file.
 	 */
@@ -46,7 +46,7 @@ class Plugin_Main {
 	/**
 	 * Registers the plugin hooks.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_hooks() {
 		$registry    = new Provider_Registry();
@@ -78,7 +78,7 @@ class Plugin_Main {
 	/**
 	 * Ensures the daily log purge event is scheduled.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function schedule_purge() {
 		if ( ! wp_next_scheduled( self::PURGE_HOOK ) ) {
@@ -89,7 +89,7 @@ class Plugin_Main {
 	/**
 	 * Runs on plugin activation.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public static function activate() {
 		( new Log_Repository() )->maybe_upgrade();
@@ -103,7 +103,7 @@ class Plugin_Main {
 	/**
 	 * Runs on plugin deactivation.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public static function deactivate() {
 		wp_clear_scheduled_hook( self::PURGE_HOOK );

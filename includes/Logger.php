@@ -12,21 +12,21 @@ namespace WordPress\SMTP;
  *
  * Only metadata is stored: the message body and attachments are never logged.
  *
- * @since 0.1.0
+ * @since 1.2.0
  */
 class Logger {
 
 	/**
 	 * Default number of days log entries are kept.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	const DEFAULT_RETENTION_DAYS = 30;
 
 	/**
 	 * Log repository.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Log_Repository
 	 */
 	private $repository;
@@ -34,7 +34,7 @@ class Logger {
 	/**
 	 * Settings.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 * @var Settings
 	 */
 	private $settings;
@@ -42,7 +42,7 @@ class Logger {
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param Log_Repository $repository Log repository.
 	 * @param Settings       $settings   Settings.
@@ -55,7 +55,7 @@ class Logger {
 	/**
 	 * Registers the hooks.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function add_hooks() {
 		add_action( 'wp_mail_succeeded', array( $this, 'log_success' ) );
@@ -66,7 +66,7 @@ class Logger {
 	/**
 	 * Logs a sent email.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param array $mail_data Email data, as passed to `wp_mail_succeeded`.
 	 */
@@ -79,7 +79,7 @@ class Logger {
 	/**
 	 * Logs a failed email.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param \WP_Error $error Error, as passed to `wp_mail_failed`.
 	 */
@@ -97,13 +97,13 @@ class Logger {
 	/**
 	 * Deletes entries older than the retention period.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 */
 	public function purge() {
 		/**
 		 * Filters the number of days email log entries are kept.
 		 *
-		 * @since 0.1.0
+		 * @since 1.2.0
 		 *
 		 * @param int $days Number of days. Default 30.
 		 */
@@ -117,7 +117,7 @@ class Logger {
 	/**
 	 * Writes a log entry.
 	 *
-	 * @since 0.1.0
+	 * @since 1.2.0
 	 *
 	 * @param string $status    Either `sent` or `failed`.
 	 * @param array  $mail_data Email data.
@@ -127,7 +127,7 @@ class Logger {
 		/**
 		 * Filters whether an email should be logged.
 		 *
-		 * @since 0.1.0
+		 * @since 1.2.0
 		 *
 		 * @param bool   $enabled   Whether to log the email. Default true.
 		 * @param array  $mail_data Email data.
