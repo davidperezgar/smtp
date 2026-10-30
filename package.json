@@ -1,0 +1,23 @@
+{
+  "name": "smtp",
+  "license": "GPL-2.0-or-later",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidperezgar/smtp.git"
+  },
+  "engines": {
+    "node": ">=20.10.0",
+    "npm": ">=10.2.3"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^11.17.0"
+  },
+  "scripts": {
+    "wp-env": "wp-env",
+    "wp-env:start:tests": "wp-env start --config=.wp-env.tests.json",
+    "wp-env:stop:tests": "wp-env stop --config=.wp-env.tests.json",
+    "test-php": "wp-env --config=.wp-env.tests.json run cli --env-cwd=/var/www/html/wp-content/plugins/$(basename \"$(pwd)\") vendor/bin/phpunit -c phpunit.xml.dist",
+    "test-php-coverage": "wp-env --config=.wp-env.tests.json run cli --env-cwd=/var/www/html/wp-content/plugins/$(basename \"$(pwd)\") vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover build/logs/php-coverage.xml"
+  }
+}
