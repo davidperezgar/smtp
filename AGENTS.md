@@ -33,7 +33,7 @@ smtp/
 │   ├── Log_Repository.php    # Log table schema (dbDelta) and queries
 │   ├── Logger.php            # wp_mail_succeeded / wp_mail_failed listeners and retention purge
 │   └── Admin/                # Tools > SMTP screen
-│       ├── Admin_Page.php    # Tabs, Settings API registration, field rendering
+│       ├── Admin_Page.php    # Tabs (the Email log tab comes first once configured), Settings API registration, field rendering
 │       ├── Log_List_Table.php
 │       └── Test_Email.php    # admin-post handler for the test email
 ├── tests/

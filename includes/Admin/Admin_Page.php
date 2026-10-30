@@ -123,7 +123,7 @@ class Admin_Page {
 	 * @return string[] Plugin action links.
 	 */
 	public function add_action_link( $links ) {
-		array_unshift( $links, '<a href="' . esc_url( self::get_url() ) . '">' . esc_html__( 'Settings', 'smtp' ) . '</a>' );
+		array_unshift( $links, '<a href="' . esc_url( self::get_url( 'settings' ) ) . '">' . esc_html__( 'Settings', 'smtp' ) . '</a>' );
 
 		return $links;
 	}
@@ -181,17 +181,13 @@ class Admin_Page {
 			return;
 		}
 
-		$tabs = array(
-			'settings' => __( 'Settings', 'smtp' ),
-			'log'      => __( 'Email log', 'smtp' ),
-			'test'     => __( 'Test', 'smtp' ),
-		);
+		$tabs = $this->get_tabs();
 
 		// Read-only navigation parameter, no state is changed.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$current = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'settings';
+		$current = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
 		if ( ! isset( $tabs[ $current ] ) ) {
-			$current = 'settings';
+			$current = (string) key( $tabs );
 		}
 		?>
 		<div class="wrap">
@@ -221,6 +217,29 @@ class Admin_Page {
 			?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Returns the tabs, the first one being the default.
+	 *
+	 * Once the plugin is configured the email log is what people come back for, so it goes first.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string[] Tab labels keyed by tab slug.
+	 */
+	private function get_tabs(): array {
+		$tabs = array(
+			'settings' => __( 'Settings', 'smtp' ),
+			'log'      => __( 'Email log', 'smtp' ),
+			'test'     => __( 'Test', 'smtp' ),
+		);
+
+		if ( $this->settings->is_configured() ) {
+			$tabs = array( 'log' => $tabs['log'] ) + $tabs;
+		}
+
+		return $tabs;
 	}
 
 	/**
@@ -347,6 +366,10 @@ class Admin_Page {
 		<form action="options.php" method="post">
 			<?php
 			settings_fields( self::PAGE_SLUG );
+			?>
+			<?php // Saving redirects back here, so the Settings tab must stay open even when the log is the default tab. ?>
+			<input type="hidden" name="_wp_http_referer" value="<?php echo esc_url( self::get_url( 'settings' ) ); ?>" />
+			<?php
 			do_settings_sections( self::PAGE_SLUG );
 			submit_button();
 			?>

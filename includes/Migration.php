@@ -161,11 +161,11 @@ class Migration {
 			return;
 		}
 
-		$url = Admin_Page::get_url();
+		$url = Admin_Page::get_url( 'settings' );
 
 		// Read-only parameter, no state is changed.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$on_settings_page = isset( $_GET['page'] ) && 'smtp' === sanitize_key( wp_unslash( $_GET['page'] ) );
+		$on_settings_page = isset( $_GET['page'], $_GET['tab'] ) && 'smtp' === sanitize_key( wp_unslash( $_GET['page'] ) ) && 'settings' === sanitize_key( wp_unslash( $_GET['tab'] ) );
 
 		if ( self::NOTICE_PASSWORD_MISSING === $notice ) {
 			if ( '' !== $this->credentials->get( 'password' ) || defined( 'SMTP_PASSWORD' ) ) {

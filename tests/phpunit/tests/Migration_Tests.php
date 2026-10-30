@@ -32,7 +32,7 @@ class Migration_Tests extends WP_UnitTestCase {
 	}
 
 	public function tear_down() {
-		unset( $_GET['page'] );
+		unset( $_GET['page'], $_GET['tab'] );
 
 		parent::tear_down();
 	}
@@ -311,10 +311,27 @@ class Migration_Tests extends WP_UnitTestCase {
 	public function test_the_migrated_notice_goes_away_once_the_settings_page_is_visited() {
 		update_option( Migration::NOTICE_OPTION, Migration::NOTICE_MIGRATED );
 		$_GET['page'] = 'smtp';
+		$_GET['tab']  = 'settings';
 
 		$this->render_notice( $this->migration() );
 
 		$this->assertFalse( get_option( Migration::NOTICE_OPTION ) );
+	}
+
+	public function test_the_migrated_notice_stays_when_another_tab_is_visited() {
+		update_option( Migration::NOTICE_OPTION, Migration::NOTICE_MIGRATED );
+		$_GET['page'] = 'smtp';
+		$_GET['tab']  = 'log';
+
+		$this->render_notice( $this->migration() );
+
+		$this->assertSame( Migration::NOTICE_MIGRATED, get_option( Migration::NOTICE_OPTION ) );
+	}
+
+	public function test_the_notice_links_to_the_settings_tab() {
+		update_option( Migration::NOTICE_OPTION, Migration::NOTICE_MIGRATED );
+
+		$this->assertStringContainsString( 'tab=settings', $this->render_notice( $this->migration() ) );
 	}
 
 	public function test_the_migrated_notice_stays_on_other_pages() {

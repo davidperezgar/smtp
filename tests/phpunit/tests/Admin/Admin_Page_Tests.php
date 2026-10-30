@@ -122,6 +122,58 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'name="smtp_settings[provider]"', $html );
 	}
 
+	private function get_tab_slugs( string $html ): array {
+		preg_match_all( '/tab=([a-z]+)"\s+class="nav-tab/', $html, $matches );
+
+		return $matches[1];
+	}
+
+	public function test_settings_is_the_first_tab_until_the_plugin_is_configured() {
+		$html = $this->render();
+
+		$this->assertSame( array( 'settings', 'log', 'test' ), $this->get_tab_slugs( $html ) );
+	}
+
+	public function test_the_log_is_the_first_tab_once_the_plugin_is_configured() {
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		$this->admin_page->register_settings();
+
+		$html = $this->render();
+
+		$this->assertSame( array( 'log', 'settings', 'test' ), $this->get_tab_slugs( $html ) );
+		$this->assertStringContainsString( 'No emails logged yet.', $html );
+		$this->assertStringNotContainsString( 'name="smtp_settings[host]"', $html );
+	}
+
+	public function test_an_unknown_tab_opens_the_first_tab_of_a_configured_plugin() {
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+
+		$this->assertStringContainsString( 'No emails logged yet.', $this->render( 'unknown' ) );
+	}
+
+	public function test_the_settings_tab_stays_reachable_once_configured() {
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		$this->admin_page->register_settings();
+
+		$this->assertStringContainsString( 'name="smtp_settings[host]"', $this->render( 'settings' ) );
+	}
+
+	public function test_saving_the_settings_returns_to_the_settings_tab() {
+		$this->admin_page->register_settings();
+
+		$html = $this->render( 'settings' );
+
+		preg_match_all( '/name="_wp_http_referer" value="([^"]*)"/', $html, $matches );
+
+		$this->assertStringContainsString( 'tab=settings', html_entity_decode( end( $matches[1] ) ) );
+	}
+
+	public function test_the_plugin_row_link_opens_the_settings_tab() {
+		$links = $this->admin_page->add_action_link( array() );
+
+		$this->assertStringContainsString( 'tab=settings', $links[0] );
+	}
+
 	public function test_render_page_falls_back_to_settings_for_an_unknown_tab() {
 		$this->admin_page->register_settings();
 
@@ -148,7 +200,7 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		update_option( Settings::OPTION, array( 'host' => '"><script>alert(1)</script>' ) );
 		$this->admin_page->register_settings();
 
-		$html = $this->render();
+		$html = $this->render( 'settings' );
 
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $html );
 	}
@@ -168,7 +220,7 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		);
 		$this->admin_page->register_settings();
 
-		$html = $this->render();
+		$html = $this->render( 'settings' );
 
 		$this->assertStringContainsString( 'SMTP_TESTS_ADMIN_LOCKED', $html );
 		$this->assertMatchesRegularExpression( '/id="smtp-host"[^>]*disabled/s', $html );
