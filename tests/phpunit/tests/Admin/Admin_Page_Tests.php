@@ -135,7 +135,13 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 	}
 
 	public function test_the_log_is_the_first_tab_once_the_plugin_is_configured() {
-		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		update_option(
+			Settings::OPTION,
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => false,
+			)
+		);
 		$this->admin_page->register_settings();
 
 		$html = $this->render();
@@ -146,13 +152,25 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 	}
 
 	public function test_an_unknown_tab_opens_the_first_tab_of_a_configured_plugin() {
-		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		update_option(
+			Settings::OPTION,
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => false,
+			)
+		);
 
 		$this->assertStringContainsString( 'No emails logged yet.', $this->render( 'unknown' ) );
 	}
 
 	public function test_the_settings_tab_stays_reachable_once_configured() {
-		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		update_option(
+			Settings::OPTION,
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => false,
+			)
+		);
 		$this->admin_page->register_settings();
 
 		$this->assertStringContainsString( 'name="smtp_settings[host]"', $this->render( 'settings' ) );
@@ -287,7 +305,13 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 	}
 
 	public function test_the_test_tab_hides_the_unconfigured_warning_once_configured() {
-		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		update_option(
+			Settings::OPTION,
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => false,
+			)
+		);
 
 		$this->assertStringNotContainsString( 'is not configured yet', $this->render( 'test' ) );
 	}

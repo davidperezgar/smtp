@@ -171,7 +171,51 @@ class Settings_Tests extends WP_UnitTestCase {
 	public function test_is_configured_requires_the_required_fields() {
 		$this->assertFalse( $this->settings->is_configured() );
 
-		$this->save( array( 'host' => 'smtp.example.com' ) );
+		$this->save(
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => false,
+			)
+		);
+
+		$this->assertTrue( $this->settings->is_configured() );
+	}
+
+	public function test_is_configured_is_false_when_authentication_has_no_password() {
+		$this->save(
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => true,
+			)
+		);
+
+		$this->assertFalse( $this->settings->is_configured() );
+
+		$this->credentials->set( 'password', 'secret' );
+
+		$this->assertTrue( $this->settings->is_configured() );
+	}
+
+	public function test_is_configured_is_true_when_a_constant_defines_the_password() {
+		if ( ! defined( 'SMTP_TESTS_LOCKED_PASSWORD' ) ) {
+			define( 'SMTP_TESTS_LOCKED_PASSWORD', 'from-constant' );
+		}
+
+		add_filter(
+			'smtp_providers',
+			static function ( $providers ) {
+				$providers['smtp']['fields']['password']['constant'] = 'SMTP_TESTS_LOCKED_PASSWORD';
+
+				return $providers;
+			}
+		);
+
+		$this->save(
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => true,
+			)
+		);
 
 		$this->assertTrue( $this->settings->is_configured() );
 	}

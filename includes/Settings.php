@@ -167,6 +167,11 @@ class Settings {
 			}
 		}
 
+		// Authenticating without a password always fails, keep the default mailer instead.
+		if ( ! empty( $values['auth'] ) && array_key_exists( 'password', $values ) && '' === $values['password'] ) {
+			return false;
+		}
+
 		return true;
 	}
 

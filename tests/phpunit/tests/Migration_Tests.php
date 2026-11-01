@@ -6,13 +6,17 @@
  */
 
 use WordPress\SMTP\Credentials;
+use WordPress\SMTP\Mailer;
 use WordPress\SMTP\Migration;
 use WordPress\SMTP\Plugin_Main;
+use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Settings;
 use WordPress\SMTP\Test_Utils\Traits\With_Log_Table;
+use WordPress\SMTP\Test_Utils\Traits\With_PHPMailer;
 
 class Migration_Tests extends WP_UnitTestCase {
 	use With_Log_Table;
+	use With_PHPMailer;
 
 	/**
 	 * @var Credentials
@@ -272,6 +276,23 @@ class Migration_Tests extends WP_UnitTestCase {
 
 		$this->assertSame( '', $this->credentials->get( 'password' ) );
 		$this->assertSame( Migration::NOTICE_PASSWORD_MISSING, get_option( Migration::NOTICE_OPTION ) );
+	}
+
+	public function test_mail_keeps_the_default_mailer_when_the_password_cannot_be_decrypted() {
+		update_option( Migration::LEGACY_OPTION, $this->legacy() );
+
+		$this->migration( '__return_empty_string' )->maybe_migrate();
+
+		$registry  = new Provider_Registry();
+		$settings  = new Settings( $registry, $this->credentials );
+		$phpmailer = $this->get_phpmailer();
+
+		( new Mailer( $settings, $registry ) )->configure( $phpmailer );
+
+		$this->assertTrue( get_option( Settings::OPTION )['auth'] );
+		$this->assertFalse( $settings->is_configured() );
+		$this->assertSame( 'mail', $phpmailer->Mailer );
+		$this->assertSame( 'localhost', $phpmailer->Host );
 	}
 
 	public function test_a_decrypter_returning_something_else_is_treated_as_a_failure() {
