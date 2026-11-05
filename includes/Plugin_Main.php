@@ -63,6 +63,9 @@ class Plugin_Main {
 		$logger = new Logger( $repository, $settings );
 		$logger->add_hooks();
 
+		$privacy = new Privacy( $repository );
+		$privacy->add_hooks();
+
 		add_action( 'admin_init', array( $repository, 'maybe_upgrade' ) );
 		add_action( 'init', array( $this, 'schedule_purge' ) );
 

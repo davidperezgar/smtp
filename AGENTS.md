@@ -32,6 +32,7 @@ smtp/
 │   ├── Mailer.php            # phpmailer_init and wp_mail_from(_name) integration
 │   ├── Log_Repository.php    # Log table schema (dbDelta) and queries
 │   ├── Logger.php            # wp_mail_succeeded / wp_mail_failed listeners and retention purge
+│   ├── Privacy.php           # Personal data exporter and eraser for the log, privacy policy text
 │   └── Admin/                # Tools > SMTP screen
 │       ├── Admin_Page.php    # Tabs (the Email log tab comes first once configured), Settings API registration, field rendering
 │       ├── Log_List_Table.php
@@ -82,6 +83,7 @@ This plugin replaces the SMTP plugin 1.x published under the same slug, so sites
 - Table `{prefix}smtp_logs`, created with `dbDelta()` by `Log_Repository::maybe_upgrade()` (schema version in the `smtp_db_version` option).
 - Only metadata is stored: recipient, subject, status, error and provider. **Never store the message body, headers or attachments.**
 - Entries older than 30 days are deleted daily by the `smtp_purge_logs` cron event.
+- `Privacy` registers a personal data exporter and eraser (key `smtp`) that find entries by recipient address, and adds suggested text to the privacy policy guide. Keep that text in sync with what the log stores.
 
 ### Hooks provided
 
