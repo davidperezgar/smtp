@@ -6,6 +6,7 @@
  */
 
 use WordPress\SMTP\Credentials;
+use WordPress\SMTP\Delivery_Tracker;
 use WordPress\SMTP\Log_Repository;
 use WordPress\SMTP\Logger;
 use WordPress\SMTP\Provider_Registry;
@@ -30,7 +31,7 @@ class Logger_Tests extends WP_UnitTestCase {
 
 		$this->logger = new Logger(
 			new Log_Repository(),
-			new Settings( new Provider_Registry(), new Credentials() )
+			new Delivery_Tracker( new Settings( new Provider_Registry(), new Credentials() ) )
 		);
 	}
 
@@ -173,6 +174,44 @@ class Logger_Tests extends WP_UnitTestCase {
 		$this->logger->log_success( array( 'subject' => 'Hello' ) );
 
 		$this->assertSame( 'smtp', $this->get_logged_entries()[0]['provider'] );
+	}
+
+	public function test_wp_mail_sent_with_the_settings_logs_the_provider() {
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+
+		wp_mail( 'to@example.org', 'Integration', 'Body' );
+
+		$this->assertSame( 'smtp', $this->get_logged_entries()[0]['provider'] );
+	}
+
+	public function test_wp_mail_reconfigured_by_another_plugin_is_logged_as_other() {
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+
+		$other_plugin = static function ( $phpmailer ) {
+			$phpmailer->Host = 'smtp.other-plugin.example';
+		};
+		add_action( 'phpmailer_init', $other_plugin, 20 );
+
+		wp_mail( 'to@example.org', 'Integration', 'Body' );
+
+		$this->assertSame( Delivery_Tracker::PROVIDER_OTHER, $this->get_logged_entries()[0]['provider'] );
+	}
+
+	public function test_wp_mail_short_circuited_by_another_plugin_is_logged_as_other() {
+		add_filter(
+			'pre_wp_mail',
+			static function ( $short_circuit, $atts ) {
+				do_action( 'wp_mail_succeeded', $atts );
+
+				return true;
+			},
+			10,
+			2
+		);
+
+		wp_mail( 'to@example.org', 'Integration', 'Body' );
+
+		$this->assertSame( Delivery_Tracker::PROVIDER_OTHER, $this->get_logged_entries()[0]['provider'] );
 	}
 
 	public function test_wp_mail_is_logged_through_the_plugin_hooks() {

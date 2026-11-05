@@ -7,7 +7,9 @@
 
 namespace WordPress\SMTP\Admin;
 
+use WordPress\SMTP\Delivery_Tracker;
 use WordPress\SMTP\Log_Repository;
+use WordPress\SMTP\Provider_Registry;
 
 /**
  * Lists the email log.
@@ -32,13 +34,22 @@ class Log_List_Table extends \WP_List_Table {
 	private $repository;
 
 	/**
+	 * Provider registry.
+	 *
+	 * @since 1.2.0
+	 * @var Provider_Registry
+	 */
+	private $registry;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param Log_Repository $repository Log repository.
+	 * @param Log_Repository    $repository Log repository.
+	 * @param Provider_Registry $registry   Provider registry.
 	 */
-	public function __construct( Log_Repository $repository ) {
+	public function __construct( Log_Repository $repository, Provider_Registry $registry ) {
 		parent::__construct(
 			array(
 				'singular' => 'email',
@@ -48,6 +59,7 @@ class Log_List_Table extends \WP_List_Table {
 		);
 
 		$this->repository = $repository;
+		$this->registry   = $registry;
 	}
 
 	/**
@@ -138,10 +150,12 @@ class Log_List_Table extends \WP_List_Table {
 			case 'status':
 				return esc_html( 'sent' === $item['status'] ? __( 'Sent', 'smtp' ) : __( 'Failed', 'smtp' ) );
 
+			case 'provider':
+				return esc_html( $this->get_provider_label( (string) $item['provider'] ) );
+
 			case 'recipient':
 			case 'subject':
 			case 'error':
-			case 'provider':
 				return esc_html( (string) $item[ $column_name ] );
 		}
 
@@ -155,6 +169,28 @@ class Log_List_Table extends \WP_List_Table {
 	 */
 	public function no_items() {
 		esc_html_e( 'No emails logged yet.', 'smtp' );
+	}
+
+	/**
+	 * Returns the label of a logged provider.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $provider Logged provider: a provider slug, `default` or `other`.
+	 * @return string Provider label.
+	 */
+	private function get_provider_label( string $provider ): string {
+		if ( Delivery_Tracker::PROVIDER_DEFAULT === $provider ) {
+			return __( 'WordPress default', 'smtp' );
+		}
+
+		if ( Delivery_Tracker::PROVIDER_OTHER === $provider ) {
+			return __( 'Another plugin', 'smtp' );
+		}
+
+		$definition = $this->registry->get( $provider );
+
+		return $definition ? (string) $definition['label'] : $provider;
 	}
 
 	/**

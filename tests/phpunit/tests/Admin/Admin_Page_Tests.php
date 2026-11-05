@@ -7,6 +7,7 @@
 
 use WordPress\SMTP\Admin\Admin_Page;
 use WordPress\SMTP\Credentials;
+use WordPress\SMTP\Delivery_Tracker;
 use WordPress\SMTP\Log_Repository;
 use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Settings;
@@ -28,11 +29,13 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		$GLOBALS['title'] = 'SMTP';
 
 		$registry         = new Provider_Registry();
+		$settings         = new Settings( $registry, new Credentials() );
 		$this->admin_page = new Admin_Page(
-			new Settings( $registry, new Credentials() ),
+			$settings,
 			$registry,
 			new Log_Repository(),
-			WP_SMTP_MAIN_FILE
+			WP_SMTP_MAIN_FILE,
+			new Delivery_Tracker( $settings )
 		);
 
 		$this->create_log_table();
@@ -240,6 +243,23 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'is not configured yet', $html );
 	}
 
+	public function test_the_test_tab_names_the_plugin_that_replaces_wp_mail() {
+		$registry = new Provider_Registry();
+		$settings = new Settings( $registry, new Credentials() );
+		$tracker  = new class( $settings ) extends Delivery_Tracker {
+			public function get_wp_mail_owner(): string {
+				return 'FluentSMTP';
+			}
+		};
+
+		$this->admin_page = new Admin_Page( $settings, $registry, new Log_Repository(), WP_SMTP_MAIN_FILE, $tracker );
+
+		$html = $this->render( 'test' );
+
+		$this->assertStringContainsString( 'FluentSMTP replaces the WordPress mailer', $html );
+		$this->assertStringNotContainsString( 'is not configured yet', $html );
+	}
+
 	public function test_the_test_tab_asks_for_the_recipient_with_the_current_user_as_default() {
 		$user = wp_get_current_user();
 
@@ -290,5 +310,48 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
 
 		$this->assertStringNotContainsString( 'is not configured yet', $this->render( 'test' ) );
+	}
+
+	private function log_entry_from( string $provider ) {
+		( new Log_Repository() )->insert(
+			array(
+				'recipient' => 'to@example.org',
+				'subject'   => 'Hello',
+				'status'    => 'sent',
+				'error'     => '',
+				'provider'  => $provider,
+			)
+		);
+	}
+
+	public function test_settings_and_test_tabs_warn_when_the_last_email_was_sent_by_another_plugin() {
+		$this->log_entry_from( Delivery_Tracker::PROVIDER_OTHER );
+
+		$this->assertStringContainsString( 'The last email was delivered by another plugin', $this->render( 'settings' ) );
+		$this->assertStringContainsString( 'The last email was delivered by another plugin', $this->render( 'test' ) );
+	}
+
+	public function test_no_other_mailer_warning_when_the_plugin_sent_the_last_email() {
+		$this->log_entry_from( Delivery_Tracker::PROVIDER_OTHER );
+		$this->log_entry_from( 'smtp' );
+
+		$this->assertStringNotContainsString( 'delivered by another plugin', $this->render( 'settings' ) );
+	}
+
+	public function test_the_test_tab_warns_when_another_plugin_delivered_the_test_email() {
+		$user_id = get_current_user_id();
+		set_transient(
+			'smtp_send_test_' . $user_id,
+			array(
+				'success'  => true,
+				'to'       => 'to@example.org',
+				'error'    => '',
+				'debug'    => '',
+				'provider' => Delivery_Tracker::PROVIDER_OTHER,
+			),
+			60
+		);
+
+		$this->assertStringContainsString( 'The test email was delivered by another plugin', $this->render( 'test' ) );
 	}
 }

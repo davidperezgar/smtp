@@ -32,24 +32,24 @@ class Logger {
 	private $repository;
 
 	/**
-	 * Settings.
+	 * Delivery tracker.
 	 *
 	 * @since 1.2.0
-	 * @var Settings
+	 * @var Delivery_Tracker
 	 */
-	private $settings;
+	private $tracker;
 
 	/**
 	 * Constructor.
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param Log_Repository $repository Log repository.
-	 * @param Settings       $settings   Settings.
+	 * @param Log_Repository   $repository Log repository.
+	 * @param Delivery_Tracker $tracker    Delivery tracker.
 	 */
-	public function __construct( Log_Repository $repository, Settings $settings ) {
+	public function __construct( Log_Repository $repository, Delivery_Tracker $tracker ) {
 		$this->repository = $repository;
-		$this->settings   = $settings;
+		$this->tracker    = $tracker;
 	}
 
 	/**
@@ -146,7 +146,7 @@ class Logger {
 				'subject'   => sanitize_text_field( $subject ),
 				'status'    => $status,
 				'error'     => sanitize_text_field( $error ),
-				'provider'  => $this->settings->is_configured() ? $this->settings->get_provider_slug() : 'default',
+				'provider'  => $this->tracker->get_provider(),
 			)
 		);
 	}

@@ -162,6 +162,21 @@ class Log_Repository {
 	}
 
 	/**
+	 * Returns the provider of the newest entry.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return string Provider, or an empty string when the log is empty.
+	 */
+	public function get_latest_provider(): string {
+		global $wpdb;
+
+		$table = $this->get_table_name();
+
+		return (string) $wpdb->get_var( "SELECT provider FROM {$table} ORDER BY id DESC LIMIT 1" );
+	}
+
+	/**
 	 * Deletes entries older than the given number of days.
 	 *
 	 * @since 1.2.0

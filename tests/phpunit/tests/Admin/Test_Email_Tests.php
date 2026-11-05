@@ -7,6 +7,8 @@
 
 use WordPress\SMTP\Admin\Test_Email;
 use WordPress\SMTP\Credentials;
+use WordPress\SMTP\Delivery_Tracker;
+use WordPress\SMTP\Mailer;
 use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Settings;
 use WordPress\SMTP\Test_Utils\Traits\With_Log_Table;
@@ -19,6 +21,16 @@ class Test_Email_Tests extends WP_UnitTestCase {
 	 */
 	private $test_email;
 
+	/**
+	 * @var Delivery_Tracker
+	 */
+	private $tracker;
+
+	/**
+	 * @var Mailer
+	 */
+	private $mailer;
+
 	public function set_up() {
 		parent::set_up();
 
@@ -28,7 +40,12 @@ class Test_Email_Tests extends WP_UnitTestCase {
 		$this->create_log_table();
 		reset_phpmailer_instance();
 
-		$this->test_email = new Test_Email( new Settings( new Provider_Registry(), new Credentials() ) );
+		$registry      = new Provider_Registry();
+		$settings      = new Settings( $registry, new Credentials() );
+		$this->tracker = new Delivery_Tracker( $settings );
+		$this->mailer  = new Mailer( $settings, $registry, $this->tracker );
+
+		$this->test_email = new Test_Email( $settings, $this->tracker );
 	}
 
 	public function get_valid_from_email() {
@@ -215,6 +232,36 @@ class Test_Email_Tests extends WP_UnitTestCase {
 		$result = Test_Email::pull_result( $user_id );
 		$this->assertFalse( $result['success'] );
 		$this->assertSame( 'Could not connect.', $result['error'] );
+	}
+
+	public function test_handle_reports_when_another_plugin_delivered_the_email() {
+		$user_id = $this->request_as( 'administrator' );
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		$this->tracker->add_hooks();
+		$this->mailer->add_hooks();
+
+		add_action(
+			'phpmailer_init',
+			static function ( $phpmailer ) {
+				$phpmailer->Host = 'smtp.other-plugin.example';
+			},
+			20
+		);
+
+		$this->run_handler();
+
+		$this->assertSame( Delivery_Tracker::PROVIDER_OTHER, Test_Email::pull_result( $user_id )['provider'] );
+	}
+
+	public function test_handle_reports_the_provider_that_delivered_the_email() {
+		$user_id = $this->request_as( 'administrator' );
+		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
+		$this->tracker->add_hooks();
+		$this->mailer->add_hooks();
+
+		$this->run_handler();
+
+		$this->assertSame( 'smtp', Test_Email::pull_result( $user_id )['provider'] );
 	}
 
 	public function test_redact_removes_the_credentials_in_plain_text_and_base64() {

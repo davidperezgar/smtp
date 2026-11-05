@@ -7,6 +7,7 @@
 
 use WordPress\SMTP\Admin\Log_List_Table;
 use WordPress\SMTP\Log_Repository;
+use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Test_Utils\Traits\With_Log_Table;
 
 class Log_List_Table_Tests extends WP_UnitTestCase {
@@ -45,7 +46,7 @@ class Log_List_Table_Tests extends WP_UnitTestCase {
 	}
 
 	private function render_table(): string {
-		$table = new Log_List_Table( $this->repository );
+		$table = new Log_List_Table( $this->repository, new Provider_Registry() );
 		$table->prepare_items();
 
 		ob_start();
@@ -56,7 +57,7 @@ class Log_List_Table_Tests extends WP_UnitTestCase {
 	}
 
 	public function test_columns() {
-		$table = new Log_List_Table( $this->repository );
+		$table = new Log_List_Table( $this->repository, new Provider_Registry() );
 
 		$this->assertSame(
 			array( 'created_at', 'recipient', 'subject', 'status', 'error', 'provider' ),
@@ -141,5 +142,26 @@ class Log_List_Table_Tests extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Mail number ' . ( Log_List_Table::PER_PAGE + 1 ), $first_page );
 		$this->assertStringNotContainsString( 'Mail number 1<', $first_page );
 		$this->assertStringContainsString( 'Mail number 1<', $second_page );
+	}
+
+	public function test_provider_column_shows_labels() {
+		foreach ( array( 'smtp', 'default', 'other', 'unknown-provider' ) as $provider ) {
+			$this->repository->insert(
+				array(
+					'recipient' => 'to@example.org',
+					'subject'   => 'Subject',
+					'status'    => 'sent',
+					'error'     => '',
+					'provider'  => $provider,
+				)
+			);
+		}
+
+		$html = $this->render_table();
+
+		$this->assertStringContainsString( 'Generic SMTP', $html );
+		$this->assertStringContainsString( 'WordPress default', $html );
+		$this->assertStringContainsString( 'Another plugin', $html );
+		$this->assertStringContainsString( 'unknown-provider', $html );
 	}
 }

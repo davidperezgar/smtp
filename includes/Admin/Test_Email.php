@@ -7,6 +7,7 @@
 
 namespace WordPress\SMTP\Admin;
 
+use WordPress\SMTP\Delivery_Tracker;
 use WordPress\SMTP\Settings;
 
 /**
@@ -32,14 +33,24 @@ class Test_Email {
 	private $settings;
 
 	/**
+	 * Delivery tracker.
+	 *
+	 * @since 1.2.0
+	 * @var Delivery_Tracker
+	 */
+	private $tracker;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.2.0
 	 *
-	 * @param Settings $settings Settings.
+	 * @param Settings         $settings Settings.
+	 * @param Delivery_Tracker $tracker  Delivery tracker.
 	 */
-	public function __construct( Settings $settings ) {
+	public function __construct( Settings $settings, Delivery_Tracker $tracker ) {
 		$this->settings = $settings;
+		$this->tracker  = $tracker;
 	}
 
 	/**
@@ -57,7 +68,7 @@ class Test_Email {
 	 * @since 1.2.0
 	 *
 	 * @param int $user_id User ID.
-	 * @return array|null Result with `success`, `to`, `error` and `debug`, or null when there is none.
+	 * @return array|null Result with `success`, `to`, `error`, `debug` and `provider`, or null when there is none.
 	 */
 	public static function pull_result( int $user_id ): ?array {
 		$key    = self::ACTION . '_' . $user_id;
@@ -95,16 +106,18 @@ class Test_Email {
 			$this->finish(
 				$user->ID,
 				array(
-					'success' => false,
-					'to'      => $requested,
-					'error'   => __( 'Please enter a valid email address.', 'smtp' ),
-					'debug'   => '',
+					'success'  => false,
+					'to'       => $requested,
+					'error'    => __( 'Please enter a valid email address.', 'smtp' ),
+					'debug'    => '',
+					'provider' => '',
 				)
 			);
 		}
 
-		$debug = array();
-		$error = '';
+		$debug    = array();
+		$error    = '';
+		$provider = '';
 
 		// PHPMailer property names are not snake_case.
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -118,9 +131,16 @@ class Test_Email {
 		$capture_error = static function ( $wp_error ) use ( &$error ) {
 			$error = $wp_error->get_error_message();
 		};
+		// Read before the tracker forgets the email, at the end of the same hooks.
+		$tracker          = $this->tracker;
+		$capture_provider = static function () use ( &$provider, $tracker ) {
+			$provider = $tracker->get_provider();
+		};
 
 		add_action( 'phpmailer_init', $capture_debug, PHP_INT_MAX );
 		add_action( 'wp_mail_failed', $capture_error );
+		add_action( 'wp_mail_succeeded', $capture_provider );
+		add_action( 'wp_mail_failed', $capture_provider );
 
 		$sent = wp_mail(
 			$to,
@@ -131,14 +151,17 @@ class Test_Email {
 
 		remove_action( 'phpmailer_init', $capture_debug, PHP_INT_MAX );
 		remove_action( 'wp_mail_failed', $capture_error );
+		remove_action( 'wp_mail_succeeded', $capture_provider );
+		remove_action( 'wp_mail_failed', $capture_provider );
 
 		$this->finish(
 			$user->ID,
 			array(
-				'success' => $sent,
-				'to'      => $to,
-				'error'   => $error,
-				'debug'   => $this->redact( implode( "\n", $debug ) ),
+				'success'  => $sent,
+				'to'       => $to,
+				'error'    => $error,
+				'debug'    => $this->redact( implode( "\n", $debug ) ),
+				'provider' => $provider,
 			)
 		);
 	}
@@ -149,7 +172,7 @@ class Test_Email {
 	 * @since 1.2.0
 	 *
 	 * @param int   $user_id User ID.
-	 * @param array $result  Result with `success`, `to`, `error` and `debug`.
+	 * @param array $result  Result with `success`, `to`, `error`, `debug` and `provider`.
 	 */
 	private function finish( int $user_id, array $result ) {
 		set_transient( self::ACTION . '_' . $user_id, $result, 5 * MINUTE_IN_SECONDS );

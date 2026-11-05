@@ -7,6 +7,7 @@
 
 namespace WordPress\SMTP\Admin;
 
+use WordPress\SMTP\Delivery_Tracker;
 use WordPress\SMTP\Log_Repository;
 use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Settings;
@@ -58,6 +59,14 @@ class Admin_Page {
 	private $main_file;
 
 	/**
+	 * Delivery tracker.
+	 *
+	 * @since 1.2.0
+	 * @var Delivery_Tracker
+	 */
+	private $tracker;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.2.0
@@ -66,12 +75,14 @@ class Admin_Page {
 	 * @param Provider_Registry $registry   Provider registry.
 	 * @param Log_Repository    $repository Log repository.
 	 * @param string            $main_file  Absolute path to the main plugin file.
+	 * @param Delivery_Tracker  $tracker    Delivery tracker.
 	 */
-	public function __construct( Settings $settings, Provider_Registry $registry, Log_Repository $repository, string $main_file ) {
+	public function __construct( Settings $settings, Provider_Registry $registry, Log_Repository $repository, string $main_file, Delivery_Tracker $tracker ) {
 		$this->settings   = $settings;
 		$this->registry   = $registry;
 		$this->repository = $repository;
 		$this->main_file  = $main_file;
+		$this->tracker    = $tracker;
 	}
 
 	/**
@@ -362,6 +373,7 @@ class Admin_Page {
 	 * @since 1.2.0
 	 */
 	private function render_settings_tab() {
+		$this->render_other_mailer_notice();
 		?>
 		<form action="options.php" method="post">
 			<?php
@@ -385,7 +397,7 @@ class Admin_Page {
 	private function render_log_tab() {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
-		$table = new Log_List_Table( $this->repository );
+		$table = new Log_List_Table( $this->repository, $this->registry );
 		$table->prepare_items();
 		?>
 		<p>
@@ -397,6 +409,32 @@ class Admin_Page {
 	}
 
 	/**
+	 * Warns when another plugin controls outgoing email.
+	 *
+	 * @since 1.2.0
+	 */
+	private function render_other_mailer_notice() {
+		$owner = $this->tracker->get_wp_mail_owner();
+
+		if ( '' !== $owner ) {
+			$message = sprintf(
+				/* translators: %s: plugin name */
+				__( '%s replaces the WordPress mailer, so outgoing email does not use the settings of this plugin. Keep only one of the two plugins active.', 'smtp' ),
+				$owner
+			);
+		} elseif ( Delivery_Tracker::PROVIDER_OTHER === $this->repository->get_latest_provider() ) {
+			$message = __( 'The last email was delivered by another plugin, not with the settings of this plugin. Check whether another mailer plugin is active.', 'smtp' );
+		} else {
+			return;
+		}
+		?>
+		<div class="notice notice-warning inline">
+			<p><?php echo esc_html( $message ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Renders the Test tab.
 	 *
 	 * @since 1.2.0
@@ -405,7 +443,9 @@ class Admin_Page {
 		$user   = wp_get_current_user();
 		$result = Test_Email::pull_result( $user->ID );
 
-		if ( ! $this->settings->is_configured() ) {
+		$this->render_other_mailer_notice();
+
+		if ( ! $this->settings->is_configured() && '' === $this->tracker->get_wp_mail_owner() ) {
 			?>
 			<div class="notice notice-warning inline">
 				<p><?php esc_html_e( 'SMTP is not configured yet, so the test email will be sent with the default WordPress mailer.', 'smtp' ); ?></p>
@@ -428,6 +468,11 @@ class Admin_Page {
 					?>
 				</p>
 			</div>
+			<?php if ( isset( $result['provider'] ) && Delivery_Tracker::PROVIDER_OTHER === $result['provider'] ) : ?>
+				<div class="notice notice-warning inline">
+					<p><?php esc_html_e( 'The test email was delivered by another plugin, so it does not test the settings of this plugin.', 'smtp' ); ?></p>
+				</div>
+			<?php endif; ?>
 			<?php if ( '' !== $result['debug'] ) : ?>
 				<h2><?php esc_html_e( 'Connection log', 'smtp' ); ?></h2>
 				<pre style="max-width: 100%; overflow: auto; padding: 1em; background: #fff; border: 1px solid #c3c4c7;"><?php echo esc_html( $result['debug'] ); ?></pre>

@@ -33,16 +33,26 @@ class Mailer {
 	private $registry;
 
 	/**
+	 * Delivery tracker.
+	 *
+	 * @since 1.2.0
+	 * @var Delivery_Tracker
+	 */
+	private $tracker;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.2.0
 	 *
 	 * @param Settings          $settings Settings.
 	 * @param Provider_Registry $registry Provider registry.
+	 * @param Delivery_Tracker  $tracker  Delivery tracker.
 	 */
-	public function __construct( Settings $settings, Provider_Registry $registry ) {
+	public function __construct( Settings $settings, Provider_Registry $registry, Delivery_Tracker $tracker ) {
 		$this->settings = $settings;
 		$this->registry = $registry;
+		$this->tracker  = $tracker;
 	}
 
 	/**
@@ -74,6 +84,8 @@ class Mailer {
 		}
 
 		call_user_func( $provider['configure'], $phpmailer, $this->settings->get_provider_values() );
+
+		$this->tracker->remember( $phpmailer );
 	}
 
 	/**

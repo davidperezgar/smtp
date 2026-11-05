@@ -57,20 +57,23 @@ class Plugin_Main {
 		$migration = new Migration( $credentials );
 		$migration->add_hooks();
 
-		$mailer = new Mailer( $settings, $registry );
+		$tracker = new Delivery_Tracker( $settings );
+		$tracker->add_hooks();
+
+		$mailer = new Mailer( $settings, $registry, $tracker );
 		$mailer->add_hooks();
 
-		$logger = new Logger( $repository, $settings );
+		$logger = new Logger( $repository, $tracker );
 		$logger->add_hooks();
 
 		add_action( 'admin_init', array( $repository, 'maybe_upgrade' ) );
 		add_action( 'init', array( $this, 'schedule_purge' ) );
 
 		if ( is_admin() ) {
-			$admin = new Admin_Page( $settings, $registry, $repository, $this->main_file );
+			$admin = new Admin_Page( $settings, $registry, $repository, $this->main_file, $tracker );
 			$admin->add_hooks();
 
-			$test_email = new Test_Email( $settings );
+			$test_email = new Test_Email( $settings, $tracker );
 			$test_email->add_hooks();
 		}
 	}
