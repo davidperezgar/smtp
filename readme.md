@@ -84,6 +84,7 @@ Providers with an invalid definition (no label, or a `configure` that is not cal
 |---|---|
 | `smtp_log_enabled` | Return `false` to skip logging an email. Receives `$enabled`, `$mail_data` and `$status` (`sent` or `failed`). |
 | `smtp_log_retention_days` | Number of days log entries are kept. Default `30`. A value of `0` or less disables the purge. |
+| `smtp_timeout` | Seconds to wait for the SMTP server to connect and to answer each command. Default `15`. A value of `0` or less keeps the PHPMailer default of 300 seconds. |
 
 ## Migration from the legacy plugin
 

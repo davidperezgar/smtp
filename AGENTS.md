@@ -88,6 +88,7 @@ This plugin replaces the SMTP plugin 1.x published under the same slug, so sites
 - `smtp_providers` (filter): add or modify providers.
 - `smtp_log_enabled` (filter): return `false` to skip logging an email. Receives the mail data and the status.
 - `smtp_log_retention_days` (filter): days to keep log entries. Default `30`; `0` or less disables the purge.
+- `smtp_timeout` (filter): seconds PHPMailer waits for the SMTP server to connect and to answer each command. Default `15`; `0` or less keeps the PHPMailer default (300). Receives the provider slug.
 
 ## Coding Standards
 

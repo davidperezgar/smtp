@@ -87,6 +87,57 @@ class Mailer_Tests extends WP_UnitTestCase {
 		$this->assertSame( 'secret', $phpmailer->Password );
 	}
 
+	public function test_configure_sets_a_short_timeout() {
+		$this->configure();
+
+		$phpmailer = $this->get_phpmailer();
+		$this->mailer->configure( $phpmailer );
+
+		$this->assertSame( 15, $phpmailer->Timeout );
+	}
+
+	public function test_timeout_is_untouched_until_a_host_is_set() {
+		$phpmailer = $this->get_phpmailer();
+		$default   = $phpmailer->Timeout;
+
+		$this->mailer->configure( $phpmailer );
+
+		$this->assertSame( $default, $phpmailer->Timeout );
+	}
+
+	public function test_timeout_can_be_changed_with_a_filter() {
+		$this->configure();
+
+		$received = null;
+		add_filter(
+			'smtp_timeout',
+			static function ( $timeout, $provider ) use ( &$received ) {
+				$received = array( $timeout, $provider );
+
+				return 30;
+			},
+			10,
+			2
+		);
+
+		$phpmailer = $this->get_phpmailer();
+		$this->mailer->configure( $phpmailer );
+
+		$this->assertSame( 30, $phpmailer->Timeout );
+		$this->assertSame( array( 15, 'smtp' ), $received );
+	}
+
+	public function test_a_timeout_of_zero_keeps_the_phpmailer_default() {
+		$this->configure();
+		add_filter( 'smtp_timeout', '__return_zero' );
+
+		$phpmailer = $this->get_phpmailer();
+		$default   = $phpmailer->Timeout;
+		$this->mailer->configure( $phpmailer );
+
+		$this->assertSame( $default, $phpmailer->Timeout );
+	}
+
 	public function test_configure_calls_the_provider_with_the_resolved_values() {
 		$received = null;
 
