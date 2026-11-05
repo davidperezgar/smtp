@@ -162,6 +162,22 @@ class Log_Repository {
 	}
 
 	/**
+	 * Counts the failed emails logged after a date.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $since GMT date in MySQL format.
+	 * @return int Number of failed emails.
+	 */
+	public function count_failed_since( string $since ): int {
+		global $wpdb;
+
+		$table = $this->get_table_name();
+
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE status = 'failed' AND created_at > %s", $since ) );
+	}
+
+	/**
 	 * Deletes entries older than the given number of days.
 	 *
 	 * @since 1.2.0

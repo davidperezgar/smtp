@@ -35,6 +35,7 @@ smtp/
 │   └── Admin/                # Tools > SMTP screen
 │       ├── Admin_Page.php    # Tabs (the Email log tab comes first once configured), Settings API registration, field rendering
 │       ├── Log_List_Table.php
+│       ├── Failure_Notice.php # Admin notice about recently failed emails, dismissible per user
 │       └── Test_Email.php    # admin-post handler for the test email
 ├── tests/
 │   └── phpunit/
@@ -82,12 +83,14 @@ This plugin replaces the SMTP plugin 1.x published under the same slug, so sites
 - Table `{prefix}smtp_logs`, created with `dbDelta()` by `Log_Repository::maybe_upgrade()` (schema version in the `smtp_db_version` option).
 - Only metadata is stored: recipient, subject, status, error and provider. **Never store the message body, headers or attachments.**
 - Entries older than 30 days are deleted daily by the `smtp_purge_logs` cron event.
+- `Failure_Notice` shows users with `manage_options` how many emails failed in the last 24 hours, on every admin screen except Tools > SMTP. Dismissing it stores the time in the `smtp_failures_dismissed` user meta, and it comes back when a newer email fails.
 
 ### Hooks provided
 
 - `smtp_providers` (filter): add or modify providers.
 - `smtp_log_enabled` (filter): return `false` to skip logging an email. Receives the mail data and the status.
 - `smtp_log_retention_days` (filter): days to keep log entries. Default `30`; `0` or less disables the purge.
+- `smtp_failure_notice_period` (filter): seconds the recent failures admin notice looks back. Default one day.
 
 ## Coding Standards
 

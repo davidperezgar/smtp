@@ -138,4 +138,20 @@ class Log_Repository_Tests extends WP_UnitTestCase {
 
 		$this->assertSame( array( 'Recent' ), wp_list_pluck( $this->get_logged_entries(), 'subject' ) );
 	}
+
+	public function test_count_failed_since_counts_only_newer_failures() {
+		global $wpdb;
+
+		$this->repository->insert( $this->entry( 'failed' ) );
+		$this->repository->insert( $this->entry( 'sent' ) );
+		$this->repository->insert( $this->entry( 'failed', 'Old' ) );
+		$wpdb->update(
+			$this->repository->get_table_name(),
+			array( 'created_at' => gmdate( 'Y-m-d H:i:s', time() - ( 2 * DAY_IN_SECONDS ) ) ),
+			array( 'subject' => 'Old' )
+		);
+
+		$this->assertSame( 1, $this->repository->count_failed_since( gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) ) );
+		$this->assertSame( 2, $this->repository->count_failed_since( gmdate( 'Y-m-d H:i:s', time() - ( 3 * DAY_IN_SECONDS ) ) ) );
+	}
 }

@@ -42,6 +42,8 @@ class Uninstall_Tests extends WP_UnitTestCase {
 			)
 		);
 		wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', Plugin_Main::PURGE_HOOK );
+		$user_id = self::factory()->user->create();
+		update_user_meta( $user_id, 'smtp_failures_dismissed', '2026-01-01 00:00:00' );
 
 		$queries = array();
 		add_filter(
@@ -62,6 +64,7 @@ class Uninstall_Tests extends WP_UnitTestCase {
 		$this->assertFalse( get_option( Migration::DONE_OPTION ) );
 		$this->assertFalse( get_option( Migration::NOTICE_OPTION ) );
 		$this->assertFalse( wp_next_scheduled( Plugin_Main::PURGE_HOOK ) );
+		$this->assertSame( '', get_user_meta( $user_id, 'smtp_failures_dismissed', true ) );
 
 		$this->assertNotEmpty(
 			preg_grep( '/^DROP (TEMPORARY )?TABLE IF EXISTS ' . preg_quote( $wpdb->prefix, '/' ) . 'smtp_logs$/', $queries )

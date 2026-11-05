@@ -8,6 +8,7 @@
 namespace WordPress\SMTP;
 
 use WordPress\SMTP\Admin\Admin_Page;
+use WordPress\SMTP\Admin\Failure_Notice;
 use WordPress\SMTP\Admin\Test_Email;
 
 /**
@@ -72,6 +73,9 @@ class Plugin_Main {
 
 			$test_email = new Test_Email( $settings );
 			$test_email->add_hooks();
+
+			$failure_notice = new Failure_Notice( $repository );
+			$failure_notice->add_hooks();
 		}
 	}
 

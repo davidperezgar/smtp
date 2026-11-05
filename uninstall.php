@@ -20,6 +20,9 @@ delete_option( 'smtp_options' );
 delete_option( 'smtp_legacy_migrated' );
 delete_option( 'smtp_migration_notice' );
 
+// Per-user dismissal of the recent failures notice.
+delete_metadata( 'user', 0, 'smtp_failures_dismissed', '', true );
+
 wp_clear_scheduled_hook( 'smtp_purge_logs' );
 
 // The table name is built from the trusted `$wpdb->prefix` only.
