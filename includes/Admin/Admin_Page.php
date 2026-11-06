@@ -7,6 +7,7 @@
 
 namespace WordPress\SMTP\Admin;
 
+use WordPress\SMTP\Error_Hints;
 use WordPress\SMTP\Log_Repository;
 use WordPress\SMTP\Provider_Registry;
 use WordPress\SMTP\Settings;
@@ -427,6 +428,9 @@ class Admin_Page {
 					}
 					?>
 				</p>
+				<?php if ( ! $result['success'] && '' !== Error_Hints::get( $result['debug'] ) ) : ?>
+					<p><?php echo esc_html( Error_Hints::get( $result['debug'] ) ); ?></p>
+				<?php endif; ?>
 			</div>
 			<?php if ( '' !== $result['debug'] ) : ?>
 				<h2><?php esc_html_e( 'Connection log', 'smtp' ); ?></h2>
