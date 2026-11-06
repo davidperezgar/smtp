@@ -286,6 +286,36 @@ class Admin_Page_Tests extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $html );
 	}
 
+	public function test_the_test_tab_shows_a_hint_for_a_recognized_failure() {
+		set_transient(
+			'smtp_send_test_' . get_current_user_id(),
+			array(
+				'success' => false,
+				'to'      => 'someone@example.com',
+				'error'   => 'SMTP Error: Could not authenticate.',
+				'debug'   => 'SMTP ERROR: Username command failed: 535 5.7.8 Authentication failed',
+			),
+			60
+		);
+
+		$this->assertStringContainsString( 'The server rejected the login.', $this->render( 'test' ) );
+	}
+
+	public function test_the_test_tab_shows_no_hint_after_a_successful_send() {
+		set_transient(
+			'smtp_send_test_' . get_current_user_id(),
+			array(
+				'success' => true,
+				'to'      => 'someone@example.com',
+				'error'   => '',
+				'debug'   => 'SMTP ERROR: Username command failed: 535 5.7.8 Authentication failed',
+			),
+			60
+		);
+
+		$this->assertStringNotContainsString( 'The server rejected the login.', $this->render( 'test' ) );
+	}
+
 	public function test_the_test_tab_hides_the_unconfigured_warning_once_configured() {
 		update_option( Settings::OPTION, array( 'host' => 'smtp.example.com' ) );
 

@@ -32,6 +32,7 @@ smtp/
 │   ├── Mailer.php            # phpmailer_init and wp_mail_from(_name) integration
 │   ├── Log_Repository.php    # Log table schema (dbDelta) and queries
 │   ├── Logger.php            # wp_mail_succeeded / wp_mail_failed listeners and retention purge
+│   ├── Error_Hints.php       # Explains failed sends, based on the connection log
 │   └── Admin/                # Tools > SMTP screen
 │       ├── Admin_Page.php    # Tabs (the Email log tab comes first once configured), Settings API registration, field rendering
 │       ├── Log_List_Table.php

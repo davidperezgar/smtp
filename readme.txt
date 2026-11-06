@@ -18,7 +18,7 @@ SMTP is a minimal, community-maintained plugin that sends the emails of your sit
 * **Simple settings:** host, port, encryption, authentication, From email and From name under _Tools > SMTP_.
 * **Constants support:** define `SMTP_HOST`, `SMTP_PORT`, `SMTP_ENCRYPTION`, `SMTP_USER`, `SMTP_PASSWORD` and `SMTP_FROM_EMAIL` in `wp-config.php` to override the saved values. Recommended for production, so credentials stay out of the database.
 * **Email log:** every email sent with `wp_mail()` is logged with its recipient, subject, status and error. The message body and attachments are never stored. Entries are deleted after 30 days.
-* **Test email:** send a test message to yourself and see the connection log if something goes wrong. Credentials are redacted.
+* **Test email:** send a test message to yourself and see the connection log and a hint on what to check if something goes wrong. Credentials are redacted.
 * **Extensible:** developers can add more providers. See the technical documentation on [GitHub](https://github.com/wordpress/smtp).
 
 The plugin does nothing until a host is configured, so activating it never breaks your site's email.
