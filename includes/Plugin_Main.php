@@ -9,6 +9,8 @@ namespace WordPress\SMTP;
 
 use WordPress\SMTP\Admin\Admin_Page;
 use WordPress\SMTP\Admin\Test_Email;
+use WordPress\SMTP\CLI\Command;
+use WordPress\SMTP\CLI\Settings_Command;
 
 /**
  * Main class for the plugin.
@@ -73,6 +75,23 @@ class Plugin_Main {
 			$test_email = new Test_Email( $settings );
 			$test_email->add_hooks();
 		}
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			$this->register_cli_commands( $settings, $registry );
+		}
+	}
+
+	/**
+	 * Registers the WP-CLI commands.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param Settings          $settings Settings.
+	 * @param Provider_Registry $registry Provider registry.
+	 */
+	public function register_cli_commands( Settings $settings, Provider_Registry $registry ) {
+		\WP_CLI::add_command( 'smtp', new Command( $settings, new Test_Email( $settings ) ) );
+		\WP_CLI::add_command( 'smtp settings', new Settings_Command( $settings, $registry ) );
 	}
 
 	/**

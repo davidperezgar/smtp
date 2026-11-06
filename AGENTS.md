@@ -32,6 +32,9 @@ smtp/
 │   ├── Mailer.php            # phpmailer_init and wp_mail_from(_name) integration
 │   ├── Log_Repository.php    # Log table schema (dbDelta) and queries
 │   ├── Logger.php            # wp_mail_succeeded / wp_mail_failed listeners and retention purge
+│   ├── CLI/                  # WP-CLI commands, registered only when WP_CLI is defined
+│   │   ├── Command.php       # wp smtp status, wp smtp test
+│   │   └── Settings_Command.php # wp smtp settings set
 │   └── Admin/                # Tools > SMTP screen
 │       ├── Admin_Page.php    # Tabs (the Email log tab comes first once configured), Settings API registration, field rendering
 │       ├── Log_List_Table.php
@@ -76,6 +79,14 @@ This plugin replaces the SMTP plugin 1.x published under the same slug, so sites
 - Never overwrite existing `smtp_settings`, never modify or delete the legacy `smtp_options` option (it is removed on uninstall only).
 - The legacy password is decrypted with mcrypt when available. When it can not be, the user is asked to enter it again through an admin notice. Never block or fail the import because of the password.
 - Any change to the mapping needs a matching test in `Migration_Tests`.
+
+### WP-CLI
+
+- Commands live in `includes/CLI/` and stay thin: the logic belongs in `Settings` and `Test_Email`, so the admin screen and the commands share it.
+- `Settings::sanitize()` expects a complete form and resets whatever is missing. To change some values, use `Settings::update()`.
+- Commands validate their input and fail, since `Settings::sanitize()` silently replaces invalid values.
+- **Never accept a secret as an argument, and never print one.**
+- `--debug` is a global WP-CLI flag, so commands can not use it as their own.
 
 ### Email log
 
@@ -131,7 +142,7 @@ npm run test-php -- --filter Settings_Tests::test_sanitize_is_idempotent
 ## Tests
 
 - `tests/phpunit/tests/` — all PHPUnit test classes, one per class in `includes/` and named `<Class>_Tests` (for example `Settings_Tests`, `Admin/Admin_Page_Tests`). Files end in `_Tests.php`, which is what `phpunit.xml.dist` picks up.
-- `tests/phpunit/utils/` — shared helpers, as traits (`With_Log_Table`, `With_PHPMailer`).
+- `tests/phpunit/utils/` — shared helpers, as traits (`With_Log_Table`, `With_PHPMailer`), and `wp-cli-stub.php`, a stand-in for WP-CLI, which is not loaded in the test stack.
 - `tests/phpunit/bootstrap.php` — loads the Composer autoloader and the WordPress test suite, and forces the plugin to be active.
 - Test classes extend `WP_UnitTestCase` and use `set_up()` / `tear_down()`.
 - The log table is created with `dbDelta()`, which the WordPress test suite turns into a temporary table. Call `create_log_table()` (from `With_Log_Table`) in `set_up()` for any test that sends mail or touches the log.

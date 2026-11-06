@@ -331,4 +331,82 @@ class Settings_Tests extends WP_UnitTestCase {
 		$this->assertSame( $first, $second );
 		$this->assertSame( 'secret', $this->credentials->get( 'password' ) );
 	}
+
+	public function test_update_changes_only_the_given_values() {
+		$this->save(
+			array(
+				'host'       => 'smtp.example.com',
+				'port'       => 2525,
+				'encryption' => 'ssl',
+				'auth'       => false,
+				'username'   => 'me',
+				'force_from' => true,
+			)
+		);
+
+		$this->settings->update( array( 'host' => 'other.example.com' ) );
+
+		$this->assertSame( 'other.example.com', $this->settings->get( 'host' ) );
+		$this->assertSame( 2525, $this->settings->get( 'port' ) );
+		$this->assertSame( 'ssl', $this->settings->get( 'encryption' ) );
+		$this->assertFalse( $this->settings->get( 'auth' ) );
+		$this->assertSame( 'me', $this->settings->get( 'username' ) );
+		$this->assertTrue( $this->settings->get( 'force_from' ) );
+	}
+
+	public function test_update_keeps_the_defaults_of_fields_that_were_never_saved() {
+		$this->settings->update( array( 'host' => 'smtp.example.com' ) );
+
+		$this->assertSame( 587, $this->settings->get( 'port' ) );
+		$this->assertSame( 'tls', $this->settings->get( 'encryption' ) );
+		$this->assertTrue( $this->settings->get( 'auth' ) );
+	}
+
+	public function test_update_stores_secrets_apart() {
+		$this->settings->update( array( 'password' => 's3cret-value' ) );
+
+		$this->assertSame( 's3cret-value', $this->credentials->get( 'password' ) );
+		$this->assertArrayNotHasKey( 'password', get_option( Settings::OPTION ) );
+	}
+
+	public function test_update_keeps_the_secret_when_it_is_not_given() {
+		$this->credentials->set( 'password', 's3cret-value' );
+
+		$this->settings->update( array( 'host' => 'smtp.example.com' ) );
+
+		$this->assertSame( 's3cret-value', $this->credentials->get( 'password' ) );
+	}
+
+	public function test_update_does_not_save_locked_fields() {
+		$this->add_locked_provider();
+
+		$this->settings->update(
+			array(
+				'provider' => 'locked',
+				'token'    => 'other',
+			)
+		);
+
+		$this->assertSame( 'locked', $this->settings->get_provider_slug() );
+		$this->assertArrayNotHasKey( 'token', get_option( Settings::OPTION ) );
+	}
+
+	public function test_get_source_reports_where_a_value_comes_from() {
+		$this->assertSame( 'default', $this->settings->get_source( 'host' ) );
+		$this->assertSame( 'default', $this->settings->get_source( 'password' ) );
+		$this->assertSame( '', $this->settings->get_source( 'unknown' ) );
+
+		$this->save( array( 'host' => 'smtp.example.com' ) );
+		$this->credentials->set( 'password', 's3cret-value' );
+
+		$this->assertSame( 'database', $this->settings->get_source( 'host' ) );
+		$this->assertSame( 'database', $this->settings->get_source( 'password' ) );
+	}
+
+	public function test_get_source_reports_a_constant() {
+		$this->add_locked_provider();
+		$this->save( array( 'provider' => 'locked' ) );
+
+		$this->assertSame( 'constant', $this->settings->get_source( 'token' ) );
+	}
 }
