@@ -37,6 +37,7 @@ class Mailer_Tests extends WP_UnitTestCase {
 				array(
 					'provider' => 'smtp',
 					'host'     => 'smtp.example.com',
+					'auth'     => false,
 				),
 				$extra
 			)

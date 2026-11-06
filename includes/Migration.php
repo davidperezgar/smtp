@@ -180,7 +180,7 @@ class Migration {
 					echo wp_kses(
 						sprintf(
 							/* translators: %s: URL of the SMTP settings page */
-							__( 'Your SMTP settings were imported from the previous version of the plugin, but the password could not be. <a href="%s">Enter your SMTP password</a> to keep sending email through your server.', 'smtp' ),
+							__( 'Your SMTP settings were imported from the previous version of the plugin, but the password could not be. Email is sent through the default WordPress mailer until you <a href="%s">enter your SMTP password</a>.', 'smtp' ),
 							esc_url( $url )
 						),
 						array( 'a' => array( 'href' => array() ) )

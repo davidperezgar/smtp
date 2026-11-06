@@ -167,6 +167,12 @@ class Settings {
 			}
 		}
 
+		foreach ( $provider['required_if'] as $key => $condition ) {
+			if ( ! empty( $values[ $condition ] ) && '' === ( $values[ $key ] ?? '' ) ) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 

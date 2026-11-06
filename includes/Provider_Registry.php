@@ -17,6 +17,8 @@ namespace WordPress\SMTP;
  *   (`text`, `number`, `email`, `password`, `select`, `checkbox`), `default`, `options` (for
  *   `select`), `description` and `constant` (name of a constant that overrides the value).
  * - `required` (string[]): Field keys that must have a value for the provider to be usable.
+ * - `required_if` (array): Field keys that must have a value when another field is enabled, as
+ *   `field => condition field` pairs. For example `array( 'password' => 'auth' )`.
  * - `configure` (callable): Receives the `PHPMailer` instance and the resolved field values.
  *
  * @since 1.2.0
@@ -56,8 +58,9 @@ class Provider_Registry {
 				continue;
 			}
 
-			$provider['fields']   = isset( $provider['fields'] ) && is_array( $provider['fields'] ) ? $provider['fields'] : array();
-			$provider['required'] = isset( $provider['required'] ) && is_array( $provider['required'] ) ? $provider['required'] : array();
+			$provider['fields']      = isset( $provider['fields'] ) && is_array( $provider['fields'] ) ? $provider['fields'] : array();
+			$provider['required']    = isset( $provider['required'] ) && is_array( $provider['required'] ) ? $provider['required'] : array();
+			$provider['required_if'] = isset( $provider['required_if'] ) && is_array( $provider['required_if'] ) ? $provider['required_if'] : array();
 
 			$valid[ $slug ] = $provider;
 		}
@@ -107,9 +110,13 @@ class Provider_Registry {
 	 */
 	private function get_generic_provider(): array {
 		return array(
-			'label'     => __( 'Generic SMTP', 'smtp' ),
-			'required'  => array( 'host' ),
-			'fields'    => array(
+			'label'       => __( 'Generic SMTP', 'smtp' ),
+			'required'    => array( 'host' ),
+			'required_if' => array(
+				'username' => 'auth',
+				'password' => 'auth',
+			),
+			'fields'      => array(
 				'host'       => array(
 					'label'    => __( 'Host', 'smtp' ),
 					'type'     => 'text',
@@ -149,7 +156,7 @@ class Provider_Registry {
 					'constant' => 'SMTP_PASSWORD',
 				),
 			),
-			'configure' => array( $this, 'configure_generic' ),
+			'configure'   => array( $this, 'configure_generic' ),
 		);
 	}
 

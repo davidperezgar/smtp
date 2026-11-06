@@ -57,6 +57,7 @@ A provider is an array registered through the `smtp_providers` filter:
 - `label` (string): human readable name.
 - `fields` (array): settings fields keyed by field key. Each field accepts `label`, `type` (`text`, `number`, `email`, `password`, `select`, `checkbox`), `default`, `options`, `description` and `constant`.
 - `required` (string[]): field keys that must have a value before the provider is used.
+- `required_if` (array): `field => condition field` pairs. The field must have a value when the condition field is enabled. Generic SMTP uses it for `username` and `password` when `auth` is on.
 - `configure` (callable): receives the `PHPMailer` instance and the resolved field values.
 
 `Provider_Registry::get_all()` discards invalid providers. Providers only configure PHPMailer; they must not send mail themselves.
@@ -67,7 +68,7 @@ A provider is an array registered through the `smtp_providers` filter:
 - Options: `smtp_settings` (everything except secrets) and `smtp_credentials` (secrets, not autoloaded).
 - **Never read or write secrets outside `Credentials`.** WordPress 7.2 is expected to add a credentials encryption API, and `Credentials` is the single place that will change.
 - **Never print a saved secret into HTML.** Password fields render empty with a placeholder, and an empty submission keeps the current secret.
-- The plugin must do nothing until the active provider has its `required` fields (`Settings::is_configured()`), so activating it never breaks a site's email.
+- The plugin must do nothing until the active provider has its `required` and `required_if` fields (`Settings::is_configured()`), so activating it never breaks a site's email.
 
 ### Legacy plugin migration
 
