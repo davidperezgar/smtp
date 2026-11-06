@@ -184,8 +184,9 @@ class Settings_Tests extends WP_UnitTestCase {
 	public function test_is_configured_is_false_when_authentication_has_no_password() {
 		$this->save(
 			array(
-				'host' => 'smtp.example.com',
-				'auth' => true,
+				'host'     => 'smtp.example.com',
+				'auth'     => true,
+				'username' => 'user',
 			)
 		);
 
@@ -212,10 +213,112 @@ class Settings_Tests extends WP_UnitTestCase {
 
 		$this->save(
 			array(
+				'host'     => 'smtp.example.com',
+				'auth'     => true,
+				'username' => 'user',
+			)
+		);
+
+		$this->assertTrue( $this->settings->is_configured() );
+	}
+
+	public function test_is_configured_is_false_when_authentication_has_no_username() {
+		$this->save(
+			array(
 				'host' => 'smtp.example.com',
 				'auth' => true,
 			)
 		);
+		$this->credentials->set( 'password', 'secret' );
+
+		$this->assertFalse( $this->settings->is_configured() );
+
+		$this->save(
+			array(
+				'host'     => 'smtp.example.com',
+				'auth'     => true,
+				'username' => '0',
+			)
+		);
+
+		$this->assertTrue( $this->settings->is_configured() );
+	}
+
+	public function test_is_configured_ignores_username_and_password_without_authentication() {
+		$this->save(
+			array(
+				'host' => 'smtp.example.com',
+				'auth' => false,
+			)
+		);
+
+		$this->assertTrue( $this->settings->is_configured() );
+	}
+
+	public function test_is_configured_applies_the_required_if_rules_of_a_custom_provider() {
+		add_filter(
+			'smtp_providers',
+			static function ( $providers ) {
+				$providers['custom'] = array(
+					'label'       => 'Custom',
+					'required_if' => array( 'api_key' => 'use_key' ),
+					'fields'      => array(
+						'use_key' => array(
+							'label'   => 'Use key',
+							'type'    => 'checkbox',
+							'default' => true,
+						),
+						'api_key' => array(
+							'label' => 'API key',
+							'type'  => 'text',
+						),
+					),
+					'configure'   => '__return_null',
+				);
+
+				return $providers;
+			}
+		);
+
+		$this->save( array( 'provider' => 'custom' ) );
+
+		$this->assertFalse( $this->settings->is_configured() );
+
+		$this->save(
+			array(
+				'provider' => 'custom',
+				'api_key'  => 'key',
+			)
+		);
+
+		$this->assertTrue( $this->settings->is_configured() );
+	}
+
+	public function test_is_configured_ignores_auth_and_password_fields_without_required_if() {
+		add_filter(
+			'smtp_providers',
+			static function ( $providers ) {
+				$providers['custom'] = array(
+					'label'     => 'Custom',
+					'fields'    => array(
+						'auth'     => array(
+							'label'   => 'Authentication',
+							'type'    => 'checkbox',
+							'default' => true,
+						),
+						'password' => array(
+							'label' => 'Password',
+							'type'  => 'password',
+						),
+					),
+					'configure' => '__return_null',
+				);
+
+				return $providers;
+			}
+		);
+
+		$this->save( array( 'provider' => 'custom' ) );
 
 		$this->assertTrue( $this->settings->is_configured() );
 	}

@@ -54,3 +54,4 @@ SMTP is developed in the open. Bug reports, ideas and pull requests are welcome 
 
 * Initial release, maintained by the WordPress Plugins Team and the community.
 * Settings of the previous SMTP plugin are imported automatically.
+* With authentication on, mail goes through SMTP only once a username and password are saved. Until then, the default mailer and From address are kept.

@@ -167,9 +167,10 @@ class Settings {
 			}
 		}
 
-		// Authenticating without a password always fails, keep the default mailer instead.
-		if ( ! empty( $values['auth'] ) && array_key_exists( 'password', $values ) && '' === $values['password'] ) {
-			return false;
+		foreach ( $provider['required_if'] as $key => $condition ) {
+			if ( ! empty( $values[ $condition ] ) && '' === ( $values[ $key ] ?? '' ) ) {
+				return false;
+			}
 		}
 
 		return true;

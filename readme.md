@@ -62,6 +62,7 @@ add_filter( 'smtp_providers', function ( $providers ) {
 | `configure` (callable) | Receives the `PHPMailer` instance and the resolved field values. Required. |
 | `fields` (array) | Settings fields, keyed by field key. |
 | `required` (string[]) | Field keys that must have a value before the provider is used. Until then, mail is sent as usual. |
+| `required_if` (array) | Field keys that must have a value when another field is enabled, as `field => condition field` pairs. For example `array( 'password' => 'auth' )`. |
 
 Each field accepts:
 

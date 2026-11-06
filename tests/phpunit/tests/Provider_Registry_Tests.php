@@ -28,6 +28,13 @@ class Provider_Registry_Tests extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'smtp', $providers );
 		$this->assertSame( 'Generic SMTP', $providers['smtp']['label'] );
 		$this->assertSame( array( 'host' ), $providers['smtp']['required'] );
+		$this->assertSame(
+			array(
+				'username' => 'auth',
+				'password' => 'auth',
+			),
+			$providers['smtp']['required_if']
+		);
 		$this->assertTrue( is_callable( $providers['smtp']['configure'] ) );
 	}
 
@@ -61,6 +68,7 @@ class Provider_Registry_Tests extends WP_UnitTestCase {
 		$this->assertIsArray( $provider );
 		$this->assertSame( array(), $provider['fields'] );
 		$this->assertSame( array(), $provider['required'] );
+		$this->assertSame( array(), $provider['required_if'] );
 	}
 
 	public function test_invalid_providers_are_discarded() {
