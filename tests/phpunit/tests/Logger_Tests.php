@@ -105,18 +105,59 @@ class Logger_Tests extends WP_UnitTestCase {
 		$this->assertCount( 1, $this->get_logged_entries() );
 	}
 
-	public function test_text_is_sanitized_before_it_is_stored() {
+	public function test_recipients_with_a_display_name_keep_their_address() {
 		$this->logger->log_success(
 			array(
-				'to'      => array( '<b>a@example.org</b>' ),
-				'subject' => '<script>alert(1)</script>Hi',
+				'to'      => array( 'John Doe <john@example.com>', 'jane@example.com' ),
+				'subject' => 'Hello',
+			)
+		);
+
+		$this->assertSame( 'John Doe <john@example.com>, jane@example.com', $this->get_logged_entries()[0]['recipient'] );
+	}
+
+	public function test_wp_mail_to_a_named_recipient_logs_the_address() {
+		wp_mail( 'John Doe <john@example.com>', 'Hi', 'Body' );
+
+		$this->assertStringContainsString( 'john@example.com', $this->get_logged_entries()[0]['recipient'] );
+	}
+
+	public function test_addresses_in_error_messages_are_kept() {
+		$this->logger->log_failure( new WP_Error( 'wp_mail_failed', 'Invalid address:  (to): <foo>' ) );
+
+		$this->assertSame( 'Invalid address:  (to): <foo>', $this->get_logged_entries()[0]['error'] );
+	}
+
+	public function test_markup_in_the_subject_is_stored_as_text() {
+		$this->logger->log_success( array( 'subject' => '<b>Hi</b>' ) );
+
+		$this->assertSame( '<b>Hi</b>', $this->get_logged_entries()[0]['subject'] );
+	}
+
+	public function test_line_breaks_and_invalid_utf8_are_removed_before_storing() {
+		$this->logger->log_success(
+			array(
+				'to'      => array( "a@example.org\r\nBcc: b@example.org" ),
+				'subject' => "Hi \xC3 there",
 			)
 		);
 
 		$entry = $this->get_logged_entries()[0];
 
-		$this->assertStringNotContainsString( '<', $entry['recipient'] );
-		$this->assertStringNotContainsString( '<', $entry['subject'] );
+		$this->assertSame( 'a@example.org Bcc: b@example.org', $entry['recipient'] );
+		$this->assertNotSame( '', wp_check_invalid_utf8( $entry['subject'] ), 'The subject must be valid UTF-8.' );
+		$this->assertStringStartsWith( 'Hi ', $entry['subject'] );
+	}
+
+	public function test_non_scalar_recipients_are_ignored() {
+		$this->logger->log_success(
+			array(
+				'to'      => array( 'a@example.org', array( 'nested' ), null ),
+				'subject' => 'Hello',
+			)
+		);
+
+		$this->assertSame( 'a@example.org', $this->get_logged_entries()[0]['recipient'] );
 	}
 
 	public function test_the_message_body_is_never_stored() {
