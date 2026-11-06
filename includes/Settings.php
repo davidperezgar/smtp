@@ -244,6 +244,58 @@ class Settings {
 	}
 
 	/**
+	 * Saves some of the settings and keeps the others.
+	 *
+	 * Settings::sanitize() expects a complete form and resets whatever is missing, so the values are
+	 * merged over the current ones first. Locked fields and secrets that are not passed are left alone.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param array $values Values to change, keyed by field key. May include `provider`.
+	 */
+	public function update( array $values ) {
+		$slug = isset( $values['provider'] ) && is_string( $values['provider'] ) && null !== $this->registry->get( $values['provider'] )
+			? $values['provider']
+			: $this->get_provider_slug();
+
+		$current = array( 'provider' => $slug );
+
+		foreach ( $this->get_fields( $slug ) as $key => $field ) {
+			if ( 'password' !== $field['type'] && ! $this->is_locked( $field ) ) {
+				$current[ $key ] = $this->resolve( $key, $field );
+			}
+		}
+
+		update_option( self::OPTION, $this->sanitize( array_merge( $current, $values ) ) );
+	}
+
+	/**
+	 * Returns where the value of a field comes from.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $key Field key.
+	 * @return string One of `constant`, `database` or `default`. Empty for unknown fields.
+	 */
+	public function get_source( string $key ): string {
+		$fields = $this->get_fields();
+
+		if ( ! isset( $fields[ $key ] ) ) {
+			return '';
+		}
+
+		if ( $this->is_locked( $fields[ $key ] ) ) {
+			return 'constant';
+		}
+
+		if ( 'password' === $fields[ $key ]['type'] ) {
+			return '' !== $this->credentials->get( $key ) ? 'database' : 'default';
+		}
+
+		return array_key_exists( $key, $this->get_saved_options() ) ? 'database' : 'default';
+	}
+
+	/**
 	 * Returns the fields shared by every provider.
 	 *
 	 * @since 1.2.0

@@ -217,6 +217,22 @@ class Test_Email_Tests extends WP_UnitTestCase {
 		$this->assertSame( 'Could not connect.', $result['error'] );
 	}
 
+	public function test_send_returns_the_result_without_redirecting() {
+		$result = $this->test_email->send( 'someone@example.com' );
+
+		$this->assertTrue( $result['success'] );
+		$this->assertSame( 'someone@example.com', $result['to'] );
+		$this->assertSame( 'someone@example.com', tests_retrieve_phpmailer_instance()->get_recipient( 'to' )->address );
+	}
+
+	public function test_send_rejects_an_invalid_address_without_sending() {
+		$result = $this->test_email->send( 'not-an-email' );
+
+		$this->assertFalse( $result['success'] );
+		$this->assertSame( 'Please enter a valid email address.', $result['error'] );
+		$this->assertFalse( tests_retrieve_phpmailer_instance()->get_recipient( 'to' ) );
+	}
+
 	public function test_redact_removes_the_credentials_in_plain_text_and_base64() {
 		update_option(
 			Settings::OPTION,

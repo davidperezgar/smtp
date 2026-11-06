@@ -78,6 +78,25 @@ Fields of type `password` are stored apart from the other settings, are never pr
 
 Providers with an invalid definition (no label, or a `configure` that is not callable) are ignored. Providers that talk to an HTTP API instead of SMTP are not supported yet, see [#1](https://github.com/davidperezgar/smtp/issues/1).
 
+## WP-CLI
+
+Set up and check a site without the admin screen:
+
+```bash
+wp smtp settings set host=smtp.example.com port=587 encryption=tls username=me@example.com
+printf '%s' "$SMTP_PASSWORD" | wp smtp settings set password=-
+wp smtp test someone@example.com
+wp smtp status --format=json
+```
+
+| Command | Description |
+|---|---|
+| `wp smtp settings set <setting>...` | Changes the given settings and keeps the others. Nothing is saved when a value is invalid. |
+| `wp smtp test [<to>] [--connection-log]` | Sends a test email, to the admin email by default. Exits with a non-zero code on failure. |
+| `wp smtp status [--format=<format>]` | Shows the active provider, each setting and whether it comes from a constant, the database or the default. |
+
+Passwords can not be passed as arguments, since those end up in the shell history. Use `password=-` to read the value from STDIN, or to get a hidden prompt in a terminal. Passwords are never printed, and they are removed from the output of `--connection-log`.
+
 ## Other filters
 
 | Filter | Description |
